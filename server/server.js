@@ -4,7 +4,9 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const authRouter = require('./routes/auth/auth-routes');
 const adminSpecRouter = require('./routes/admin/spec-route');
+const adminCategoryRouter = require('./routes/admin/category-route');
 const shopAddressRouter = require("./routes/shop/address-routes");
+
 
 
 mongoose.connect('mongodb+srv://ngduytttb:ngduytttb@cluster0.mtfljp9.mongodb.net/'
@@ -33,6 +35,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use('/api/auth',authRouter);
 app.use('/api/admin/specification',adminSpecRouter);
+app.use('/api/admin/category',adminCategoryRouter);
 app.use("/api/shop/address", shopAddressRouter);
 
 app.listen(PORT, ()=>console.log(`Server is running on port ${PORT}`));
