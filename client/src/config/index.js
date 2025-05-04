@@ -110,3 +110,76 @@ export const addressFormControls = [
       placeholder: "",
     },
   ];
+
+  export const addProductFormElements = (categoryList = [], selectedCategorySpecs = []) => {
+    if (!Array.isArray(categoryList) || !Array.isArray(selectedCategorySpecs)) {
+      console.error('Categories or selectedCategorySpecs is not an array');
+      return []; 
+    }
+    console.log('Selected Category Specs:', selectedCategorySpecs);
+
+    const baseFields = [
+      {
+        label: "Tên sản phẩm",
+        name: "productName",
+        componentType: "input",
+        type: "text",
+        placeholder: "Nhập tên sản phẩm",
+      },
+      {
+        label: "Mô tả",
+        name: "description",
+        componentType: "textarea",
+        placeholder: "Nhập mô tả",
+      },
+      {
+        label: "Hãng sản xuất",
+        name: "brand",
+        componentType: "input",
+        type: "text",
+        placeholder: "Nhập hãng",
+      },
+      {
+        label: "Danh mục",
+        name: "categoryId",
+        componentType: "select",
+        options: categoryList.map((cat) => ({
+          id: cat._id,
+          label: cat.categoryName,
+        })),
+      },
+      {
+        label: "Giá",
+        name: "price",
+        componentType: "input",
+        type: "number",
+        placeholder: "Nhập giá",
+      },
+      {
+        label: "Giá sau giảm",
+        name: "salePrice",
+        componentType: "input",
+        type: "number",
+        placeholder: "Nhập giá giảm (nếu có)",
+      },
+      {
+        label: "Số lượng trong kho",
+        name: "totalStock",
+        componentType: "input",
+        type: "number",
+        placeholder: "Nhập số lượng",
+      },
+    ];
+  
+    const specFields = selectedCategorySpecs.map((spec) => ({
+      label: spec.specName,
+      name: `specifications.${spec._id}`,
+      componentType: "input",
+      type: "text",
+      placeholder: `Nhập ${spec.specName}`,
+    }));
+  
+    return [...baseFields, ...specFields];
+  };
+  
+  
