@@ -3,6 +3,7 @@ import authReducer from './auth-slice';
 import adminSpecificationReducer from './admin/spec-slice';
 import adminProductsReducer from './admin/product-slice';
 import shopAdressSlice from './shop/address-slice'
+import shopProductSlice from './shop/product-slice'
 import adminCategoryReducer from './admin/cate-slice'
 
 
@@ -12,6 +13,7 @@ const store = configureStore({
         adminSpecifications:adminSpecificationReducer,
         adminCategory:adminCategoryReducer,
         adminProduct:adminProductsReducer,
+        shopProduct:shopProductSlice,
         shopAdress: shopAdressSlice,
     },
 });

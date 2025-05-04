@@ -6,6 +6,7 @@ const authRouter = require('./routes/auth/auth-routes');
 const adminSpecRouter = require('./routes/admin/spec-route');
 const adminCategoryRouter = require('./routes/admin/category-route');
 const adminProductRouter = require('./routes/admin/product-route');
+const shopProductRouter = require("./routes/shop/product-route");
 const shopAddressRouter = require("./routes/shop/address-routes");
 
 
@@ -38,6 +39,7 @@ app.use('/api/auth',authRouter);
 app.use('/api/admin/specification',adminSpecRouter);
 app.use('/api/admin/category',adminCategoryRouter);
 app.use('/api/admin/product',adminProductRouter);
+app.use("/api/shop/product", shopProductRouter);
 app.use("/api/shop/address", shopAddressRouter);
 
 app.listen(PORT, ()=>console.log(`Server is running on port ${PORT}`));
