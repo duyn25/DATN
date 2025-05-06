@@ -1,7 +1,4 @@
 import { Button } from "@/components/ui/button";
-import bannerOne from "../../assets/banner-1.webp";
-import bannerTwo from "../../assets/banner-2.webp";
-import bannerThree from "../../assets/banner-3.webp";
 import {
   Airplay,
   BabyIcon,
@@ -28,34 +25,29 @@ import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { useNavigate } from "react-router-dom";
 //import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/components/ui/use-toast";
-//import ProductDetailsDialog from "@/components/shopping-view/product-details";
-//import { getFeatureImages } from "@/store/common-slice";
+import { getFeatureImages } from "@/store/common-slice";
 import Footer from "@/components/shopping-view/footer";
 
-const categoriesWithIcon = [
-  { id: "men", label: "Nam", icon: ShirtIcon },
-  { id: "women", label: "Nữ", icon: CloudLightning },
-  { id: "kids", label: "Trẻ em", icon: BabyIcon },
-  { id: "uniform", label: "Đồng phục", icon: WatchIcon },
-];
+// const categoriesWithIcon = [
+//   { id: "men", label: "Nam", icon: ShirtIcon },
+//   { id: "women", label: "Nữ", icon: CloudLightning },
+//   { id: "kids", label: "Trẻ em", icon: BabyIcon },
+//   { id: "uniform", label: "Đồng phục", icon: WatchIcon },
+// ];
 
-const brandsWithIcon = [
-  { id: "nike", label: "Nike", icon: Shirt },
-  { id: "adidas", label: "Adidas", icon: WashingMachine },
-  { id: "puma", label: "Puma", icon: ShoppingBasket },
-  { id: "levi", label: "Levi's", icon: Airplay },
-  { id: "zara", label: "Zara", icon: Images },
-  { id: "h&m", label: "H&M", icon: Heater },
-];
+// const brandsWithIcon = [
+//   { id: "nike", label: "Nike", icon: Shirt },
+//   { id: "adidas", label: "Adidas", icon: WashingMachine },
+//   { id: "puma", label: "Puma", icon: ShoppingBasket },
+//   { id: "levi", label: "Levi's", icon: Airplay },
+//   { id: "zara", label: "Zara", icon: Images },
+//   { id: "h&m", label: "H&M", icon: Heater },
+// ];
 function ShoppingHome() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const { productList, productDetails } = useSelector((state) => state.shopProduct);
-  //const { featureImageList } = useSelector((state) => state.commonFeature);
-
-  const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
-
+  const { productList } = useSelector((state) => state.shopProduct);
+  const { featureImageList } = useSelector((state) => state.commonFeature);
   const { user } = useSelector((state) => state.auth);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -67,13 +59,13 @@ function ShoppingHome() {
     };
 
     sessionStorage.setItem("filters", JSON.stringify(currentFilter));
-    navigate(`/shop/listing`);
+      navigate(`/shop/product`);
   }
 
   function handleGetProductDetails(getCurrentProductId) {
-    dispatch(fetchProductDetails(getCurrentProductId));
+      navigate(`/shop/product/${getCurrentProductId}`);
   }
-
+  
   function handleAddtoCart(getCurrentProductId) {
     dispatch(
       addToCart({
@@ -92,16 +84,12 @@ function ShoppingHome() {
   }
 
   useEffect(() => {
-    if (productDetails !== null) setOpenDetailsDialog(true);
-  }, [productDetails]);
+    const timer = setInterval(() => {
+      setCurrentSlide((prevSlide) => (prevSlide + 1) % featureImageList.length);
+    }, 15000);
 
-//   useEffect(() => {
-//     const timer = setInterval(() => {
-//       setCurrentSlide((prevSlide) => (prevSlide + 1) % featureImageList.length);
-//     }, 15000);
-
-//     return () => clearInterval(timer);
-//   }, [featureImageList]);
+    return () => clearInterval(timer);
+  }, [featureImageList]);
 
   useEffect(() => {
     dispatch(
@@ -112,16 +100,14 @@ function ShoppingHome() {
     );
   }, [dispatch]);
 
-  console.log(productList, "productList");
-
-//   useEffect(() => {
-//     dispatch(getFeatureImages());
-//   }, [dispatch]);
+  useEffect(() => {
+    dispatch(getFeatureImages());
+  }, [dispatch]);
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="relative w-full h-[600px] overflow-hidden">
-        {/* {featureImageList && featureImageList.length > 0
+      <div className="relative w-full  h-[350px] overflow-hidden">
+        {featureImageList && featureImageList.length > 0
           ? featureImageList.map((slide, index) => (
               <img
                 src={slide?.image}
@@ -131,7 +117,7 @@ function ShoppingHome() {
                 } absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000`}
               />
             ))
-          : null} */}
+          : null}
         <Button
           variant="outline"
           size="icon"
@@ -159,7 +145,26 @@ function ShoppingHome() {
           <ChevronRightIcon className="w-4 h-4" />
         </Button>
       </div>
-      <section className="py-12 bg-gray-50">
+    {/* san pham */}
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl font-bold text-center mb-5">
+            Sản phẩm
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+            {productList && productList.length > 0
+              ? productList.map((productItem) => (
+                  <ShoppingProductTile
+                    handleGetProductDetails={handleGetProductDetails}
+                    product={productItem}
+                    handleAddtoCart={handleAddtoCart}
+                  />
+                ))
+              : null}
+          </div>
+        </div>
+      </section>
+      {/* <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8">
             Danh mục sản phẩm
@@ -199,26 +204,9 @@ function ShoppingHome() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">
-            Sản phẩm
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {productList && productList.length > 0
-              ? productList.map((productItem) => (
-                  <ShoppingProductTile
-                    handleGetProductDetails={handleGetProductDetails}
-                    product={productItem}
-                    handleAddtoCart={handleAddtoCart}
-                  />
-                ))
-              : null}
-          </div>
-        </div>
-      </section>
+      
       <Footer/> 
     </div>
   );

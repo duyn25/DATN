@@ -61,7 +61,7 @@ export const addSpecFormElements =[
             componentType: "select",
             options: [
                 { id: "number", label: "Number" },
-                { id: "string", label: "String" },
+                { id: "text", label: "Text" },
             ],
             },
             
@@ -182,4 +182,27 @@ export const addressFormControls = [
     return [...baseFields, ...specFields];
   };
   
-  
+  export const filterOptions = {
+    Hãng: [
+      { id: "menshirt", label: "Áo nam" },
+        { id: "womenshirt", label: "Áo nữ" },
+        { id: "kidsshirt", label: "Áo trẻ em" },
+        { id: "menpants", label: "Quần nam" }
+    ],
+    brand: [
+      { id: "nike", label: "Nike" },
+      { id: "adidas", label: "Adidas" },
+      { id: "puma", label: "Puma" },
+      { id: "levi", label: "Levi's" },
+      { id: "zara", label: "Zara" },
+      { id: "h&m", label: "H&M" },
+    ],
+    
+  };
+
+  export const sortOptions = [
+    { id: "price-lowtohigh", label: "Giá: Thấp -> cao" },
+    { id: "price-hightolow", label: "Giá: Cao -> thấp" },
+    { id: "title-atoz", label: "Tên: A -> Z" },
+    { id: "title-ztoa", label: "Tên: Z -> A" },
+  ];

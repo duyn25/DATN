@@ -1,4 +1,4 @@
-
+const Category = require("../../models/categorySpec");
 const specificationList = require("../../models/specificationList");
 
 const addSpec = async (req, res) => {
@@ -89,8 +89,14 @@ const editSpec = async (req, res) => {
 const deleteSpec = async (req, res) => {
   try {
     const { id } = req.params;
+    const categoryUsingSpec = await Category.findOne({ specId: id });
+    if (categoryUsingSpec) {
+      return res.status(400).json({
+        success: false,
+        message: "Không thể xóa vì thông số này đang được sử dụng trong một hoặc nhiều danh mục.",
+      });
+    }
     const spec = await specificationList.findByIdAndDelete(id);
-
     if (!spec)
       return res.status(404).json({
         success: false,

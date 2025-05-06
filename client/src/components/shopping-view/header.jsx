@@ -12,10 +12,10 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../ui/avatar";
-import MegaMenu from "./megaMenu";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "@/store/auth-slice";
 import { useState } from "react";
+import MenuItems from "./menu";
 
 function HeaderRightContent() {
   const { user } = useSelector((state) => state.auth);
@@ -87,12 +87,12 @@ function ShoppingHeader() {
               }`}
             >
               <Menu size={20} />
-              <span>Danh mục</span>
+              <Link to="/shop/product">Danh mục</Link>
             </Button>
 
             {isHovered && (
-              <div className="absolute left-0 z-50 flex bg-white text-black shadow-xl w-[800px] rounded-bl-xl rounded-br-xl transition-all duration-200">
-                <MegaMenu />
+              <div className="absolute left-0 z-50 flex bg-white text-black shadow-xl w-[250px] rounded-bl-xl rounded-br-xl transition-all duration-200">
+                <MenuItems />
               </div>
             )}
           </div>

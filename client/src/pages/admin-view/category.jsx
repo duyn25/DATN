@@ -1,4 +1,3 @@
-// pages/admin/AdminCategories.jsx
 import { useDispatch, useSelector } from "react-redux";
 import {
   Table,

@@ -103,7 +103,7 @@ function AdminSpecifications() {
       <TableHead>Mô tả</TableHead>
       <TableHead>Kiểu dữ liệu</TableHead>
       <TableHead>Đơn vị</TableHead>
-      <TableHead></TableHead>
+      
     </TableRow>
   </TableHeader>
   <TableBody>

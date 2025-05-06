@@ -1,4 +1,6 @@
 const Product = require("../../models/Product");
+const Category = require("../../models/categoryList");
+const Specification = require("../../models/productSpecification");
 
 const getFilteredProducts = async (req, res) => {
   try {
@@ -58,25 +60,54 @@ const getFilteredProducts = async (req, res) => {
 const getProductDetails = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await Product.findById(id);
 
-    if (!product)
+    const product = await Product.findById(id);
+    if (!product) {
       return res.status(404).json({
         success: false,
         message: "Product not found!",
       });
+    }
 
-    res.status(200).json({
+    const specifications = await Specification.
+    find({ productId: product._id }).populate({
+      path: 'specId', 
+      select: 'specName specUnit', 
+      model: 'specificationList'
+    }).lean();
+    const formattedSpecs = specifications.map((spec) => ({
+      name: spec.specId?.specName || "Thông số không xác định",
+      value: `${spec.value} ${spec.specId?.specUnit || ""}`.trim(),
+    }));
+    return res.status(200).json({
       success: true,
-      data: product,
+      data: {
+        ...product.toObject(),
+        specifications: formattedSpecs,
+      },
     });
-  } catch (e) {
-    console.log(error);
-    res.status(500).json({
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
       success: false,
-      message: "Some error occured",
+      message: "Some error occurred",
     });
   }
 };
 
-module.exports = { getFilteredProducts, getProductDetails };
+const getCategories = async (req, res) => {
+  try {
+    const categories = await Category.find();
+    res.status(200).json({
+      success: true,
+      data: categories,
+    });
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch categories",
+    });
+  }
+};
+module.exports = { getFilteredProducts, getProductDetails,getCategories };
