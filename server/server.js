@@ -8,9 +8,9 @@ const adminCategoryRouter = require('./routes/admin/category-route');
 const adminProductRouter = require('./routes/admin/product-route');
 const shopProductRouter = require("./routes/shop/product-route");
 const shopAddressRouter = require("./routes/shop/address-routes");
+const shopCartRouter = require('./routes/shop/cart-routes')
 const commonFeatureRouter = require("./routes/common/feature-routes");
-
-
+const shopReviewRouter = require("./routes/shop/review-routes");
 
 
 mongoose.connect('mongodb+srv://ngduytttb:ngduytttb@cluster0.mtfljp9.mongodb.net/'
@@ -42,8 +42,9 @@ app.use('/api/admin/specification',adminSpecRouter);
 app.use('/api/admin/category',adminCategoryRouter);
 app.use('/api/admin/product',adminProductRouter);
 app.use("/api/shop/product", shopProductRouter);
+app.use('/api/shop/cart',shopCartRouter);
 app.use("/api/shop/address", shopAddressRouter);
 app.use("/api/common/feature", commonFeatureRouter);
-
+app.use("/api/shop/review", shopReviewRouter);
 
 app.listen(PORT, ()=>console.log(`Server is running on port ${PORT}`));

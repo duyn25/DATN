@@ -11,7 +11,6 @@ const initialAddressFormData ={
     address:'',
     city:'',
     phone:'',
-    pincode: '',
     notes: '',
 }
 
@@ -83,7 +82,6 @@ function Address({setCurrentSelectedAddress, selectedId}) {
             address:getCurrentAddress?.address,
             city: getCurrentAddress?.city,
             phone:getCurrentAddress?.phone,
-            pincode: getCurrentAddress?.pincode,
             notes: getCurrentAddress?.notes,
         })
     }
@@ -126,7 +124,6 @@ function Address({setCurrentSelectedAddress, selectedId}) {
                 buttonText={curretnEditedId !==null ?'Sửa' : 'Thêm mới'
                 }
                 onSubmit={handleManageAddress}
-                isBtnDisabled={!isFormValid()}
                 />
             </CardContent>
         </Card>

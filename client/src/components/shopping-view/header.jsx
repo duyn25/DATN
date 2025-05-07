@@ -16,9 +16,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "@/store/auth-slice";
 import { useState } from "react";
 import MenuItems from "./menu";
+import UserCartWrapper from "./cart-wrapper";
 
 function HeaderRightContent() {
   const { user } = useSelector((state) => state.auth);
+  const {cartItems} =useSelector(state=>state.shopCart);
   const [openCartSheet, setOpenCartSheet] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -27,19 +29,11 @@ function HeaderRightContent() {
   }
   return (
     <div className="flex lg:items-center lg:flex-row flex-col gap-4">
-      <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
-        <Button
-          className="flex items-center bg-[#4390e3] hover:bg-white hover:text-black gap-1"
-          onClick={() => setOpenCartSheet(true)}
-        >
-          <ShoppingCart className="w-6 h-6 " />
-          <span>Giỏ hàng</span>
-        </Button>
-      </Sheet>
+      
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Avatar className="bg-black">
-            <AvatarFallback className="bg-black text-white font-extrabold">
+          <Avatar className="bg-[#7d161c]">
+            <AvatarFallback className="bg-[#7d161c] text-white font-extrabold">
               {user?.userName[0].toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -49,7 +43,7 @@ function HeaderRightContent() {
           <DropdownMenuLabel>{user?.userName}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => navigate("/shop/account")}>
-            <UserCog className="mr-2 h-4 w-4" /> Tài khoản
+            <UserCog className="mr-2 h-4 w-4 " /> Tài khoản
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout}>
@@ -57,6 +51,16 @@ function HeaderRightContent() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
+        <Button
+          className="flex items-center rounded-xl bg-black hover:bg-gray-800 h-12 gap-1"
+          onClick={() => setOpenCartSheet(true)}
+        >
+          <ShoppingCart className="w-6 h-6 " />
+          <span>Giỏ hàng</span>
+        </Button>
+        <UserCartWrapper cartItems={cartItems && cartItems.items &&cartItems.items.length >0 ? cartItems.items :[] }/>
+      </Sheet>
     </div>
   );
 }
@@ -66,11 +70,11 @@ function ShoppingHeader() {
 
   return (
     <div>
-      <header className="sticky top-0 z-40 w-full border-b bg-[#4390e3] text-white">
-        <div className="flex h-16 items-center justify-center px-4 md:px-6">
+      <header className="sticky top-0 z-40 w-full h-[80px] border-b  bg-[#d9503f] text-white ">
+        <div className="flex items-center justify-center px-4 py-3 md:px-6">
           <Link to="/shop/home" className="flex items-center gap-3">
             <HousePlus className="h-6 w-6" />
-            <span className="font-bold mr-3">HC Store</span>
+            <span className="font-bold mr-10">HC Store</span>
           </Link>
 
           {/* Nút danh mục + menu dropdown */}
@@ -80,18 +84,18 @@ function ShoppingHeader() {
             onMouseLeave={() => setIsHovered(false)}
           >
             <Button
-              className={`flex items-center rounded-t-xl rounded-b-none gap-1 h-15 transition-all duration-200 ${
+              className={`flex items-center rounded-xl gap-1 h-12 transition-all duration-200 ${
                 isHovered
-                  ? "!bg-white  !text-black"
-                  : "bg-[#4390e3] text-white hover:bg-white hover:text-black"
+                  ? "!bg-gray-800  !text-white"
+                  : "bg-black text-white hover:bg-gray-800"
               }`}
             >
-              <Menu size={20} />
+              <Menu size={25} />
               <Link to="/shop/product">Danh mục</Link>
             </Button>
 
             {isHovered && (
-              <div className="absolute left-0 z-50 flex bg-white text-black shadow-xl w-[250px] rounded-bl-xl rounded-br-xl transition-all duration-200">
+              <div className="absolute left-0 z-50 flex bg-white text-black shadow-xl w-[250px] rounded-br-xl transition-all duration-200">
                 <MenuItems />
               </div>
             )}

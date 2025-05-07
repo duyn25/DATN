@@ -1,18 +1,9 @@
 import { Button } from "@/components/ui/button";
 import {
-  Airplay,
-  BabyIcon,
+ 
   ChevronLeftIcon,
   ChevronRightIcon,
-  CloudLightning,
-  Heater,
-  Images,
-  Shirt,
-  ShirtIcon,
-  ShoppingBasket,
-  UmbrellaIcon,
-  WashingMachine,
-  WatchIcon,
+ 
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
@@ -23,10 +14,8 @@ import {
 } from "@/store/shop/product-slice";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { useNavigate } from "react-router-dom";
-//import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/components/ui/use-toast";
 import { getFeatureImages } from "@/store/common-slice";
-import Footer from "@/components/shopping-view/footer";
 
 // const categoriesWithIcon = [
 //   { id: "men", label: "Nam", icon: ShirtIcon },
@@ -207,7 +196,6 @@ function ShoppingHome() {
       </section> */}
 
       
-      <Footer/> 
     </div>
   );
 }

@@ -7,6 +7,7 @@ function ShoppingProductTile({
   handleGetProductDetails,
   handleAddtoCart,
 }) {
+  
   return (
 
       <Card>
@@ -33,44 +34,35 @@ function ShoppingProductTile({
         </div>
         <CardContent className="p-4">
           <h2 className="text-xl font-bold mb-2">{product?.title}</h2>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-[16px]">
-              {product?.productName}
-            </span>
-            <span className="text-[22px] text-muted-foreground">
-              {/* {brandOptionsMap[product?.brand]} */}
-            </span>
-          </div>
-          <div className="flex justify-between items-center mb-2">
+          
+          <div className="flex flex-col mb-2">
             <span
               className={`${
-                product?.salePrice > 0 ? "line-through text-red-500" : ""
+                product?.salePrice > 0 ? "line-through !text-muted-foreground" : ""
               } text-lg font-semibold text-primary`}
             >
               {product?.price.toLocaleString()} đ
             </span>
             {product?.salePrice > 0 ? (
-              <span className="text-lg font-semibold text-red-500">
+              <span className="text-lg font-semibold">
                 {product?.salePrice.toLocaleString()} đ
               </span>
             ) : null}
           </div>
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-[16px]">
+              {product?.productName}
+            </span>
+          </div>
         </CardContent>
       </div>
-      <CardFooter>
-        {product?.totalStock === 0 ? (
-          <Button className="w-full opacity-60 cursor-not-allowed">
-            Hết hàng
-          </Button>
-        ) : (
-          <Button
-            onClick={() => handleGetProductDetails(product?._id)}
-            className="w-full"
-          >
-            Thêm vào giỏ hàng
-          </Button>
-        )}
-      </CardFooter>
+      {product?.totalStock === 0 && (
+  <CardFooter>
+    <div className="w-full text-center py-2 rounded bg-gray-200 text-red-500 font-semibold">
+    </div>
+  </CardFooter>
+)}
+
     </Card>
 
     

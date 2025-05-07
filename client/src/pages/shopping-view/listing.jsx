@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAllFilteredProducts } from "@/store/shop/product-slice";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { useSearchParams } from "react-router-dom";
-//import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
+import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -34,7 +34,7 @@ function ShoppingListing() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const {productList} = useSelector(state=>state.shopProduct);
-    //const { cartItems } = useSelector((state) => state.shopCart);
+    const { cartItems } = useSelector((state) => state.shopCart);
     const {user} = useSelector(state=>state.auth);
     const [filters, setFilters] = useState();
     const [searchParams, setSearchParams] = useSearchParams();

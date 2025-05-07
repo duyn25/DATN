@@ -90,13 +90,6 @@ export const addressFormControls = [
       placeholder: "Nhập thành phố",
     },
     {
-      label: "Mã pin",
-      name: "pincode",
-      componentType: "input",
-      type: "text",
-      placeholder: "Nhập mã pin",
-    },
-    {
       label: "SĐT",
       name: "phone",
       componentType: "input",

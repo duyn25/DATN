@@ -1,25 +1,68 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductDetails } from "@/store/shop/product-slice";
-//import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
+import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
+import { addReview, getReviews } from "@/store/shop/review-slice";
+import StarRatingComponent from "@/components/common/star-rating";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ShoppingCart, StarIcon } from "lucide-react";
 
 function ProductDetailPage() {
   const { productId } = useParams();
+  const [reviewMsg, setReviewMsg] = useState("");
   const dispatch = useDispatch();
+  const [rating, setRating] = useState(0);
   const { productDetails } = useSelector((state) => state.shopProduct);
+  const { reviews } = useSelector((state) => state.shopReview);
   const { user } = useSelector((state) => state.auth);
   const { toast } = useToast();
 
+  function handleRatingChange(getRating) {
+    console.log(getRating, "getRating");
+
+    setRating(getRating);
+  }
+
+  function handleAddReview() {
+    dispatch(
+      addReview({
+        productId: productDetails?._id,
+        userId: user?.id,
+        userName: user?.userName,
+        reviewMessage: reviewMsg,
+        reviewValue: rating,
+      })
+    ).then((data) => {
+      if (data?.payload?.success) {
+        setRating(0);
+        setReviewMsg("");
+        dispatch(getReviews(productDetails?._id));
+        toast({
+          title: "Thêm đánh giá thành công",
+        });
+      }
+    });
+  }
   useEffect(() => {
     if (productId) {
       dispatch(fetchProductDetails(productId));
     }
   }, [dispatch, productId]);
+  useEffect(() => {
+    if (productDetails !== null) dispatch(getReviews(productDetails?._id));
+  }, [productDetails]);
 
+  const averageReview =
+    reviews && reviews.length > 0
+      ? reviews.reduce((sum, reviewItem) => sum + reviewItem.reviewValue, 0) /
+        reviews.length
+      : 0;
   const handleAddToCart = () => {
     if (!user) {
       toast({ title: "Vui lòng đăng nhập để thêm vào giỏ hàng." });
@@ -73,19 +116,27 @@ console.log("productdetail",productDetails)
 
         <div>
           <h1 className="text-3xl font-bold mb-4">{productName}</h1>
-          <div>review</div>
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-0.5">
+                <StarIcon className="fill-yellow-400"/>
+            </div>
+            <span className="text-muted-foreground">
+              {averageReview.toFixed(2)}  {productDetails?.totalReviews} đánh giá
+            </span>
+          </div>
+          <div className="flex flex-col gap-4 mb-4 mt-7">
             {hasDiscount ? (
               <>
-                <span className="text-2xl font-semibold text-muted-foreground line-through">
-                  {price.toLocaleString()} đ
+              <span className="text-2xl font-bold text-red-500">
+                  {salePrice.toLocaleString()} đ 
                 </span>
-                <span className="text-3xl font-bold text-red-500">
-                  {salePrice.toLocaleString()} đ
-                </span>
-                <Badge className="bg-red-100 text-red-600">
+                <span className="  font-semibold text-muted-foreground line-through">
+                  {price.toLocaleString()} đ <Badge className="bg-red-100 text-red-600">
                   -{discountPercent}%
                 </Badge>
+                </span>
+                
+                
               </>
             ) : (
               <span className="text-3xl font-bold text-primary">
@@ -106,17 +157,20 @@ console.log("productdetail",productDetails)
           <p className="text-base text-muted-foreground mb-6">
             {description}
           </p>
-
+          <div className="flex gap-2">
           <Button
             onClick={handleAddToCart}
             disabled={totalStock === 0}
-            className="w-full text-base"
+            className="w-1/4 text-base h-[45px] bg-red-500 hover:bg-red-600  "
           >
-            {totalStock === 0 ? "Hết hàng" : "Thêm vào giỏ hàng"}
-          </Button>
+          <ShoppingCart />
+          </Button >
+          <Button className="w-3/4 text-base h-[45px] bg-red-500 hover:bg-red-600 ">Mua ngay</Button>
+          </div>
+          
         </div>
         {productDetails.specifications?.length > 0 && (
-        <div className="mt-10">
+        <div className="mt-10 bg-white px-4 py-4 rounded-2xl">
           <h2 className="text-xl font-bold mb-4">Thông số kỹ thuật</h2>
           <div className="border rounded-lg overflow-hidden">
             <table className="w-full text-sm text-left border-collapse">
@@ -132,9 +186,60 @@ console.log("productdetail",productDetails)
               </tbody>
             </table>
           </div>
-        </div>
-)}
+        </div>)}
+
+        
       </div>
+      <div className="max-h-[500px] overflow-auto mt-[20px] bg-white px-4 py-4 rounded-2xl">
+            <h2 className="text-xl font-bold mb-4">Đánh giá</h2>
+            <div className="grid gap-6">
+              {reviews && reviews.length > 0 ? (
+                reviews.map((reviewItem) => (
+                  <div className="flex gap-4">
+                    <Avatar  className="w-10 h-10 border">
+                      <AvatarFallback>  
+                        {reviewItem?.userName[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="grid gap-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold">{reviewItem?.userName}</h3>
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        <StarRatingComponent rating={reviewItem?.reviewValue} />
+                      </div>
+                      <p className="text-muted-foreground">
+                        {reviewItem.reviewMessage}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <h1>Chưa có đánh giá</h1>
+              )}
+            </div>
+            <div className="mt-10 flex-col flex gap-2">
+              <Label>Đánh giá</Label>
+              <div className="flex gap-1">
+                <StarRatingComponent
+                  rating={rating}
+                  handleRatingChange={handleRatingChange}
+                />
+              </div>
+              <Input
+                name="reviewMsg"
+                value={reviewMsg}
+                onChange={(event) => setReviewMsg(event.target.value)}
+                placeholder="Viết đánh giá..."
+              />
+              <Button
+                onClick={handleAddReview}
+                disabled={reviewMsg.trim() === ""}
+              >
+                Gửi
+              </Button>
+            </div>
+          </div>
     </div>
   );
 }

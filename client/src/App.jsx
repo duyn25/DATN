@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { checkAuth } from './store/auth-slice'
 import { Skeleton } from "@/components/ui/skeleton"
 import ShoppingAccount from './pages/shopping-view/account'
+import ShoppingCheckout from './pages/shopping-view/checkout'
 
 
 function App() {
@@ -63,6 +64,7 @@ function App() {
           <Route path='home' element={<ShoppingHome/>}/>
           <Route path='product' element={<ShoppingListing/>}/>
           <Route path='account' element={<ShoppingAccount/>}/>
+          <Route path='checkout' element={<ShoppingCheckout/>}/>
           <Route path='product/:productId' element={<ProductDetailPage/>}/>
 
 
