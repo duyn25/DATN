@@ -126,6 +126,7 @@ function AdminProducts() {
 
   return (
     <Fragment>
+      <h1 className="text-2xl font-bold">Tất cả sản phẩm</h1>
       <div className="mb-5 w-full flex justify-end">
         <Button onClick={() => setOpenCreateProductsDialog(true)}>
           Thêm sản phẩm

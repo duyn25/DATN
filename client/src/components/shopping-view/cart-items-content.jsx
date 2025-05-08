@@ -22,6 +22,7 @@ function UserCartItemsContent({ cartItem }) {
       })
     );
   }, [dispatch]);
+  
   useEffect(() => {
     if (user?.id) {
       dispatch(fetchCartItems(user.id));
@@ -29,6 +30,7 @@ function UserCartItemsContent({ cartItem }) {
   }, [dispatch, user]);
   console.log("cart item: ", cartItems)
   function handleUpdateQuantity(getCartItem, typeOfAction) {
+    
     if (typeOfAction == "plus") {
       let getCartItems = cartItems.items || [];
 
@@ -74,6 +76,7 @@ function UserCartItemsContent({ cartItem }) {
         });
       }
     });
+    
   }
 
   function handleCartItemDelete(getCartItem) {

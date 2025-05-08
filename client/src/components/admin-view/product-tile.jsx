@@ -1,5 +1,5 @@
 import { Button } from "../ui/button";
-import { Card, CardContent, CardFooter } from "../ui/card";
+import { Card, CardContent, CardFooter, CardTitle } from "../ui/card";
 
 function AdminProductTile({
   product,
@@ -9,6 +9,7 @@ function AdminProductTile({
   handleDelete,
 }) {
   return (
+    
     <Card className="w-full max-w-sm mx-auto">
       <div>
         <div className="relative">

@@ -21,6 +21,7 @@ import { checkAuth } from './store/auth-slice'
 import { Skeleton } from "@/components/ui/skeleton"
 import ShoppingAccount from './pages/shopping-view/account'
 import ShoppingCheckout from './pages/shopping-view/checkout'
+import PaymentSuccessPage from './pages/shopping-view/payment-success'
 
 
 function App() {
@@ -65,6 +66,7 @@ function App() {
           <Route path='product' element={<ShoppingListing/>}/>
           <Route path='account' element={<ShoppingAccount/>}/>
           <Route path='checkout' element={<ShoppingCheckout/>}/>
+          <Route path='payment-success' element={<PaymentSuccessPage/>}/>
           <Route path='product/:productId' element={<ProductDetailPage/>}/>
 
 

@@ -161,11 +161,11 @@ console.log("productdetail",productDetails)
           <Button
             onClick={handleAddToCart}
             disabled={totalStock === 0}
-            className="w-1/4 text-base h-[45px] bg-red-500 hover:bg-red-600  "
+            className="w-full text-base h-[45px] bg-red-500 hover:bg-red-600  "
           >
-          <ShoppingCart />
+          <ShoppingCart /> Thêm vào giỏ hàng
           </Button >
-          <Button className="w-3/4 text-base h-[45px] bg-red-500 hover:bg-red-600 ">Mua ngay</Button>
+          
           </div>
           
         </div>

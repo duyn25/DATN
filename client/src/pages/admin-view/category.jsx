@@ -76,6 +76,7 @@ function AdminCategories() {
  
   return (
     <Fragment>
+          <h1 className="text-2xl font-bold">Danh mục sản phẩm</h1>
       <div className="mb-5 w-full flex justify-end">
         <Button onClick={() => setOpenForm(true)}>Thêm danh mục sản phẩm</Button>
       </div>

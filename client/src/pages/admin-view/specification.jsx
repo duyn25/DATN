@@ -91,6 +91,7 @@ function AdminSpecifications() {
 
   return (
     <Fragment>
+    <h1 className="text-2xl font-bold">Thông số sản phẩm</h1>
     <div className="mb-5 w-full flex justify-end">
         <Button onClick={() => setOpenForm(true)}>
         Thêm thông số sản phẩm

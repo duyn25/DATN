@@ -13,7 +13,11 @@ const AddressSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    phone: String,
+    phone: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     notes: String,
   },
   { timestamps: true }

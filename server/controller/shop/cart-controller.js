@@ -143,7 +143,7 @@ const updateCartItemQty = async (req, res) => {
 
     await cart.populate({
       path: "items.productId",
-      select: "image title price salePrice color size",
+      select: "image productName price salePrice ",
     });
 
     const populateCartItems = cart.items.map((item) => ({
@@ -201,7 +201,7 @@ const deleteCartItem = async (req, res) => {
 
     await cart.populate({
       path: "items.productId",
-      select: "image title price salePrice",
+      select: "image productName price salePrice",
     });
 
     const populateCartItems = cart.items.map((item) => ({

@@ -21,7 +21,6 @@ const handleImageUpload = async (req, res) => {
   }
 };
    
-//add a new product
 const addProduct = async (req, res) => {
   try {
     const {
@@ -76,35 +75,30 @@ const addProduct = async (req, res) => {
   }
 };
 
-//fetch all products
 
 const fetchAllProducts = async (req, res) => {
   try {
-    // Lấy tất cả các sản phẩm
     const listOfProducts = await Product.find({});
 
-    // Duyệt qua tất cả sản phẩm để lấy thông số kỹ thuật của mỗi sản phẩm
     const productsWithSpecs = await Promise.all(
       listOfProducts.map(async (product) => {
-        // Lấy thông số kỹ thuật cho từng sản phẩm
         const specifications = await ProductSpecification.find({ productId: product._id }).populate({
           path: 'productId', 
           select: 'categoryId', 
           model: 'Product'
         });
 
-        // Gộp thông số kỹ thuật vào sản phẩm
+       
         return {
-          ...product.toObject(), // Chuyển đổi sản phẩm sang object để dễ thao tác
-          specifications, // Gán thông số kỹ thuật vào sản phẩm
+          ...product.toObject(), 
+          specifications, 
         };
       })
     );
 
-    // Trả về danh sách sản phẩm với thông số kỹ thuật
     res.status(200).json({
       success: true,
-      data: productsWithSpecs, // Danh sách sản phẩm có thông số kỹ thuật đi kèm
+      data: productsWithSpecs, 
     });
   } catch (e) {
     console.log(e);
@@ -115,8 +109,6 @@ const fetchAllProducts = async (req, res) => {
   }
 };
 
-
-//edit a product
 const editProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -173,7 +165,6 @@ const editProduct = async (req, res) => {
   }
 };
 
-//delete a product
 const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
