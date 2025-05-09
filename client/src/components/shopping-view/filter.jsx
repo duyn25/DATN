@@ -1,4 +1,4 @@
-import { filterOptions } from "@/config";
+import { filterOptions,filterTitles } from "@/config";
 import { Fragment } from "react";
 import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
@@ -8,13 +8,13 @@ function ProductFilter({ filters, handleFilter }) {
   return (
     <div className="bg-background rounded-lg shadow-sm">
       <div className="p-4 border-b">
-        <h2 className="text-lg font-bold">Bộ lọc tìm kiếm</h2>
+        <h2 className="text-lg font-extrabold">Bộ lọc</h2>
       </div>
       <div className="p-4 space-y-4">
         {Object.keys(filterOptions).map((keyItem) => (
           <Fragment>
-            <div>
-              <h3 className="text-base font-bold">{keyItem}</h3>
+            <div key={keyItem}>
+              <h4>{filterTitles[keyItem] || keyItem}</h4>
               <div className=" grid  gap-2 mt-2">
                 {filterOptions[keyItem].map((option) => (
                   <Label className="flex font-medium items-center gap-2 ">

@@ -13,9 +13,8 @@ export default function MenuItems() {
     dispatch(fetchCategories());
   }, [dispatch]);
   console.log("catelist: ",categoryList)
-  const handleCategoryClick = () => {
-    navigate(`/shop/product`);
-  };
+  const handleCategoryClick = (categoryId) => {
+  navigate(`/shop/product?categoryId=${categoryId}`);  };
 
   return (
     <div className="flex w-[250px] border rounded-xl shadow-xl bg-gray-100">
@@ -23,7 +22,7 @@ export default function MenuItems() {
         {categoryList.map((cat) => (
           <li
             key={cat._id}
-            onClick={() => handleCategoryClick()}
+            onClick={() => handleCategoryClick(cat._id)}
             className="p-4 text-sm cursor-pointer hover:text-blue-400 hover:bg-white"
           >
             {cat.categoryName}

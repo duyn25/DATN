@@ -53,7 +53,7 @@ function HeaderRightContent() {
       </DropdownMenu>
       <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
         <Button
-          className="flex items-center rounded-xl bg-black hover:bg-gray-800 h-12 gap-1"
+          className="flex items-center rounded-xl bg-[#7d161c] hover:bg-gray-800 h-12 gap-1"
           onClick={() => setOpenCartSheet(true)}
         >
           <ShoppingCart className="w-6 h-6 " />
@@ -87,7 +87,7 @@ function ShoppingHeader() {
               className={`flex items-center rounded-xl gap-1 h-12 transition-all duration-200 ${
                 isHovered
                   ? "!bg-gray-800  !text-white"
-                  : "bg-black text-white hover:bg-gray-800"
+                  : "bg-[#7d161c] text-white hover:bg-gray-800"
               }`}
             >
               <Menu size={25} />
@@ -103,14 +103,11 @@ function ShoppingHeader() {
 
           {/* Search bar */}
           <div className="flex-1 max-w-md mx-4">
-            <div className="flex items-center bg-white rounded-full px-3 py-1">
-              <Search className="text-gray-500" size={18} />
-              <Input
-                type="text"
-                placeholder="Bạn tìm gì..."
-                className="flex-grow px-2 py-1 text-black outline-none bg-transparent border-white"
-              />
-            </div>
+              <Button className="h-12 rounded-x1 gap-1 bg-[#7d161c]">
+                <Search className="text-gray-500 " size={18} />
+                <Link to="/shop/search">Tìm kiếm</Link>
+              </Button>
+             
           </div>
 
           {/* Giỏ hàng & tài khoản */}

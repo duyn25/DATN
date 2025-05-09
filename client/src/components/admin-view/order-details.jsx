@@ -11,6 +11,7 @@ import {
   updateOrderStatus,
 } from "@/store/admin/order-slice";
 import { useToast } from "../ui/use-toast";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 const initialFormData = {
   status: "",
@@ -50,31 +51,41 @@ function AdminOrderDetailsView({ orderDetails }) {
   }
 
   return (
+    
     <DialogContent className="sm:max-w-[600px]">
+      <DialogTitle>Chi tiết đơn hàng</DialogTitle>
       <div className="grid gap-6">
         <div className="grid gap-2">
-          <div className="flex mt-6 items-center justify-between">
+          <div className="flex mt-5 items-center justify-between">
             <p className="font-medium">ID</p>
             <Label>{orderDetails?._id}</Label>
           </div>
-          <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Thời gian đặt hàng</p>
-            <Label>{orderDetails?.orderDate.split("T")[0]}</Label>
+          <div className="flex mt-1 items-center justify-between">
+            <p className="font-medium">User ID</p>
+            <Label>{orderDetails?.userId}</Label>
           </div>
-          <div className="flex mt-2 items-center justify-between">
+          <div className="flex mt-1 items-center justify-between">
+            <p className="font-medium">Thời gian đặt hàng</p>
+            <Label>
+            {orderDetails?.orderDate
+              ? new Date(orderDetails?.orderDate).toLocaleString() // Hiển thị ngày giờ đầy đủ
+              : ''}
+          </Label>
+          </div>
+          <div className="flex mt-1 items-center justify-between">
             <p className="font-medium">Tổng</p>
             <Label>{orderDetails?.totalAmount.toLocaleString()} đ</Label>
           </div>
-          <div className="flex mt-2 items-center justify-between">
+          <div className="flex mt-1 items-center justify-between">
             <p className="font-medium">Phương thức thanh toán</p>
             <Label>{orderDetails?.paymentMethod}</Label>
           </div>
-          <div className="flex mt-2 items-center justify-between">
+          <div className="flex mt-1 items-center justify-between">
             <p className="font-medium">Tình trạng thanh toán</p>
             <Label>
             {orderDetails?.orderStatus === "delivered" ? "paid" : orderDetails?.paymentStatus}</Label>
           </div>
-          <div className="flex mt-2 items-center justify-between">
+          <div className="flex mt-1 items-center justify-between">
             <p className="font-medium">Tình trạng đơn hàng</p>
             <Label>
               <Badge
@@ -96,10 +107,10 @@ function AdminOrderDetailsView({ orderDetails }) {
           <div className="grid gap-2">
             <div className="font-medium">Chi tiết đơn hàng</div>
             <ul className="grid gap-3">
-              {orderDetails?.cartItems && orderDetails?.cartItems.length > 0
-                ? orderDetails?.cartItems.map((item) => (
+              {orderDetails?.orderItems && orderDetails?.orderItems.length > 0
+                ? orderDetails?.orderItems.map((item) => (
                     <li className="flex items-center justify-between">
-                      <span>Tên: {item.title}</span>
+                      <span>Tên: {item.productName}</span>
                       <span>Số lượng: {item.quantity}</span>
                       <span>Giá: {item.price.toLocaleString()}</span>
                     </li>
@@ -111,13 +122,31 @@ function AdminOrderDetailsView({ orderDetails }) {
         <div className="grid gap-4">
           <div className="grid gap-2">
             <div className="font-medium">Thông tin giao hàng</div>
-            <div className="grid gap-0.5 text-muted-foreground">
-              <span>Tên khách hàng: {user.userName}</span>
-              <span>Địa chỉ: {orderDetails?.addressInfo?.address}</span>
-              <span>Thành phố: {orderDetails?.addressInfo?.city}</span>
-              <span>Mã pin: {orderDetails?.addressInfo?.pincode}</span>
-              <span>SĐT: {orderDetails?.addressInfo?.phone}</span>
-              <span>Ghi chú: {orderDetails?.addressInfo?.notes}</span>
+            <div className="grid text-muted-foreground">
+              <table className="table-auto w-full border-collapse">
+                <tbody>
+                  <tr>
+                    <td className="px-4 py-2 font-semibold">Tên khách hàng</td>
+                    <td className="px-4 py-2">{user.userName}</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 font-semibold">Địa chỉ</td>
+                    <td className="px-4">{orderDetails?.addressInfo?.address}</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4  font-semibold">Thành phố</td>
+                    <td className="px-4 ">{orderDetails?.addressInfo?.city}</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4  font-semibold">SĐT</td>
+                    <td className="px-4 ">{orderDetails?.addressInfo?.phone}</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4  font-semibold">Ghi chú</td>
+                    <td className="px-4 ">{orderDetails?.addressInfo?.notes}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

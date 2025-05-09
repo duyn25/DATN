@@ -6,17 +6,14 @@ const addCategory = async (req, res) => {
   try {
     const { categoryName, specifications } = req.body;
 
-    // Kiểm tra danh mục trùng
     const existCategory = await categoryList.findOne({ categoryName });
     if (existCategory) {
       return res.status(400).json({ message: "Danh mục đã tồn tại" });
     }
 
-    // Tạo danh mục
     const newCategory = new categoryList({ categoryName });
     await newCategory.save();
 
-    // Lưu thông số kỹ thuật nếu có
     if (specifications && specifications.length > 0) {
       const specPromises = specifications.map((specId) => {
         const categorySpecs = new categorySpec({
@@ -101,21 +98,18 @@ const editCategory = async (req, res) => {
     const { id } = req.params;
     const { categoryName, specifications } = req.body;
 
-    // Cập nhật tên danh mục trước
     const category = await categoryList.findByIdAndUpdate(
       id,
       { categoryName },
-      { new: true } // Trả về document mới sau khi cập nhật
+      { new: true } 
     );
 
     if (!category) {
       return res.status(404).json({ message: "Danh mục không tìm thấy" });
     }
 
-    // Xóa toàn bộ thông số kỹ thuật cũ
     await categorySpec.deleteMany({ categoryId: category._id });
 
-    // Lưu lại thông số kỹ thuật mới nếu có
     if (specifications && specifications.length > 0) {
       const specPromises = specifications.map((specId) => {
         const categorySpecs = new categorySpec({
@@ -164,10 +158,10 @@ const editCategory = async (req, res) => {
         return res.status(404).json({ message: "Danh mục không tồn tại." });
       }
   
-      // Xóa các thông số kỹ thuật liên quan đến danh mục
-      await categorySpec.deleteMany({ categoryId: id });
+     const result = await categorySpec.deleteMany({ categoryId: id });
+      console.log("Số bản ghi đã xóa:", result.deletedCount);
+
   
-      // Xóa danh mục
       await categoryToDelete.deleteOne(); 
   
       res.status(200).json({ success: true, message: "Danh mục đã được xóa." });

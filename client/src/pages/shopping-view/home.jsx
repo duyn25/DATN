@@ -17,21 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { getFeatureImages } from "@/store/common-slice";
 
-// const categoriesWithIcon = [
-//   { id: "men", label: "Nam", icon: ShirtIcon },
-//   { id: "women", label: "Nữ", icon: CloudLightning },
-//   { id: "kids", label: "Trẻ em", icon: BabyIcon },
-//   { id: "uniform", label: "Đồng phục", icon: WatchIcon },
-// ];
 
-// const brandsWithIcon = [
-//   { id: "nike", label: "Nike", icon: Shirt },
-//   { id: "adidas", label: "Adidas", icon: WashingMachine },
-//   { id: "puma", label: "Puma", icon: ShoppingBasket },
-//   { id: "levi", label: "Levi's", icon: Airplay },
-//   { id: "zara", label: "Zara", icon: Images },
-//   { id: "h&m", label: "H&M", icon: Heater },
-// ];
 function ShoppingHome() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { productList } = useSelector((state) => state.shopProduct);
@@ -41,35 +27,8 @@ function ShoppingHome() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  function handleNavigateToListingPage(getCurrentItem, section) {
-    sessionStorage.removeItem("filters");
-    const currentFilter = {
-      [section]: [getCurrentItem.id],
-    };
-
-    sessionStorage.setItem("filters", JSON.stringify(currentFilter));
-      navigate(`/shop/product`);
-  }
-
   function handleGetProductDetails(getCurrentProductId) {
       navigate(`/shop/product/${getCurrentProductId}`);
-  }
-  
-  function handleAddtoCart(getCurrentProductId) {
-    dispatch(
-      addToCart({
-        userId: user?.id,
-        productId: getCurrentProductId,
-        quantity: 1,
-      })
-    ).then((data) => {
-      if (data?.payload?.success) {
-        dispatch(fetchCartItems(user?.id));
-        toast({
-          title: "Sản phẩm được thêm vào giỏ hàng",
-        });
-      }
-    });
   }
 
   useEffect(() => {
@@ -146,7 +105,6 @@ function ShoppingHome() {
                   <ShoppingProductTile
                     handleGetProductDetails={handleGetProductDetails}
                     product={productItem}
-                    handleAddtoCart={handleAddtoCart}
                   />
                 ))
               : null}

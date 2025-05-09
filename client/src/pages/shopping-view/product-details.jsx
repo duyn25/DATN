@@ -104,14 +104,13 @@ console.log("productdetail",productDetails)
 
   return (
     <div className="container mx-auto py-10 px-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        <div>
+      <div className=" grid grid-cols-1 md:grid-cols-2 bg-white gap-10 p-4">
+        <div  className="flex justify-center w-full h-[400px] rounded-lg border">
           <img
             src={image}
             alt={productName}
-            className="w-full h-[400px] rounded-lg border"
+            className="items-center"
           />
-          {/* thumbnails hoặc ảnh phụ có thể đặt thêm ở đây */}
         </div>
 
         <div>
@@ -147,7 +146,6 @@ console.log("productdetail",productDetails)
 
           {hasDiscount && (
             <div className="mb-4">
-              <Badge variant="destructive">Khuyến mãi được hưởng</Badge>
               <ul className="list-disc ml-6 mt-2 text-sm text-muted-foreground">
                 <li>Giảm ngay {price - salePrice} đ</li>
               </ul>
@@ -166,10 +164,10 @@ console.log("productdetail",productDetails)
           <ShoppingCart /> Thêm vào giỏ hàng
           </Button >
           
-          </div>
-          
-        </div>
-        {productDetails.specifications?.length > 0 && (
+          </div>   
+        </div>   
+      </div>
+      {productDetails.specifications?.length > 0 && (
         <div className="mt-10 bg-white px-4 py-4 rounded-2xl">
           <h2 className="text-xl font-bold mb-4">Thông số kỹ thuật</h2>
           <div className="border rounded-lg overflow-hidden">
@@ -188,8 +186,6 @@ console.log("productdetail",productDetails)
           </div>
         </div>)}
 
-        
-      </div>
       <div className="max-h-[500px] overflow-auto mt-[20px] bg-white px-4 py-4 rounded-2xl">
             <h2 className="text-xl font-bold mb-4">Đánh giá</h2>
             <div className="grid gap-6">

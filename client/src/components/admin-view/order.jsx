@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "../ui/table";
 import AdminOrderDetailsView from "./order-details";
+import { translateOrderStatus, translatePaymentStatus } from "../../lib/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAllOrdersForAdmin,
@@ -50,6 +51,7 @@ function AdminOrdersView() {
               <TableHead>ID</TableHead>
               <TableHead>Thời gian đặt hàng</TableHead>
               <TableHead>Trạng thái đơn hàng</TableHead>
+              <TableHead>Trạng thái thanh toán  </TableHead>
               <TableHead>Tổng</TableHead>
               <TableHead>
                 <span className="sr-only">Details</span>
@@ -61,20 +63,16 @@ function AdminOrdersView() {
               ? orderList.map((orderItem) => (
                   <TableRow>
                     <TableCell>{orderItem?._id}</TableCell>
-                    <TableCell>{orderItem?.orderDate.split("T")[0]}</TableCell>
                     <TableCell>
-                      <Badge
-                        className={`py-1 px-3 ${
-                          orderItem?.orderStatus === "delivered"
-                            ? "bg-green-500"
-                            : orderItem?.orderStatus === "rejected"
-                            ? "bg-red-600"
-                            : "bg-black"
-                        }`}
-                      >
-                        {orderItem?.orderStatus}
-                      </Badge>
+                  {orderItem?.orderDate
+                    ? new Date(orderItem?.orderDate).toLocaleString() // Hiển thị ngày giờ đầy đủ
+                    : ''}
+                
+                </TableCell>
+                    <TableCell>
+                      { translateOrderStatus(orderItem?.orderStatus)}
                     </TableCell>
+                    <TableCell>{translatePaymentStatus(orderItem?.paymentStatus)}</TableCell>
                     <TableCell>{orderItem?.totalAmount.toLocaleString()} đ</TableCell>
                     <TableCell>
                       <Dialog

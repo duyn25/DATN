@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { translateOrderStatus, translatePaymentStatus } from "../../lib/utils";
 import ShoppingOrderDetailsView from "./order-details";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -17,7 +18,6 @@ import {
   getOrderDetails,
   resetOrderDetails,
 } from "@/store/shop/order-slice";
-import { Badge } from "../ui/badge";
 
 function ShoppingOrders() {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
@@ -28,7 +28,7 @@ function ShoppingOrders() {
   function handleFetchOrderDetails(getId) {
     dispatch(getOrderDetails(getId));
   }
-
+console.log("ỏder",orderList)
   useEffect(() => {
     if (user?.id) {
       dispatch(getAllOrdersByUserId(user?.id));
@@ -39,7 +39,7 @@ function ShoppingOrders() {
     if (orderDetails !== null) setOpenDetailsDialog(true);
   }, [orderDetails]);
   
-
+console.log("order detail",orderDetails)
   return (
     <Card>
       <CardHeader>
@@ -49,9 +49,10 @@ function ShoppingOrders() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Ngày đặt hàng</TableHead>
+            <TableHead>Sản phẩm</TableHead>
+              <TableHead>Thời gian đặt hàng</TableHead>
               <TableHead>Trạng thái đơn hàng</TableHead>
+              <TableHead>Trạng thái thanh toán</TableHead>
               <TableHead>Tổng</TableHead>
               <TableHead>
                 <span className="sr-only">Chi tiết</span>
@@ -62,21 +63,25 @@ function ShoppingOrders() {
             {orderList?.length > 0 ? (
               orderList.map((orderItem) => (
                 <TableRow key={orderItem?._id}>
-                  <TableCell>{orderItem?._id}</TableCell>
-                  <TableCell>{new Date(orderItem?.orderDate).toLocaleDateString()}</TableCell>
+                  <TableCell className="flex flex-col gap-2">
+                  {orderItem.orderItems.map((item, index) => (
+                    <img
+                      key={index}
+                      src={item.image}
+                      alt={item.productName}
+                      className="w-12 h-12 object-cover rounded border"
+                    />
+                  ))}
+                </TableCell>
                   <TableCell>
-                    <Badge
-                      className={`py-1 px-3 ${
-                        orderItem?.orderStatus === "delivered"
-                          ? "bg-green-500"
-                          : orderItem?.orderStatus === "rejected"
-                          ? "bg-red-600"
-                          : "bg-yellow-500"
-                      }`}
-                    >
-                      {orderItem?.orderStatus}
-                    </Badge>
+                      {orderItem?.orderDate
+                    ? new Date(orderItem?.orderDate).toLocaleString() 
+                    : ''}
                   </TableCell>
+                  <TableCell>
+                      {translateOrderStatus(orderItem?.orderStatus)}
+                  </TableCell>
+                  <TableCell>{translatePaymentStatus(orderItem?.paymentStatus)}</TableCell>
                   <TableCell>{orderItem?.totalAmount.toLocaleString()} đ</TableCell>
                   <TableCell>
                     <Dialog

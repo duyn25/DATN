@@ -9,10 +9,10 @@ const partnerCode = "MOMO";
 const accessKey = "F8BBA842ECF85";
 const secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
 const redirectUrl = "http://localhost:5173/shop/payment-success";  
-const ipnUrl = "https://d78c-2402-800-61c5-4f6b-fc2d-cbf1-66d5-813a.ngrok-free.app/api/shop/order/momo-ipn";  
+const ipnUrl = "https://83fd-2402-800-61c5-4f6b-1091-168a-86b1-f45a.ngrok-free.app/api/shop/order/momo-ipn";  
 let momoOrder = {};
-const updateProductQuantities = async (cartItems) => {
-  for (const item of cartItems) {
+const updateProductQuantities = async (orderItems) => {
+  for (const item of orderItems) {
     const productId = item.productId;
     const quantity = item.quantity;
 
@@ -27,14 +27,14 @@ const updateProductQuantities = async (cartItems) => {
 };
 const createOrder = async (req, res) => {
   try {
-    const { userId, cartId, cartItems, addressInfo, totalAmount, paymentMethod } = req.body;
-
+    const { userId, cartId, orderItems, addressInfo, totalAmount, paymentMethod } = req.body;
+    console.log("body", req.body)
     const orderDate = new Date();
     const orderStatus = "pending";
     const paymentStatus = paymentMethod === "cod" ? "pending" : "unpaid";
     const orderUpdateDate = orderDate;
 
-    if (!userId || !cartId || !cartItems?.length || !addressInfo || !totalAmount) {
+    if (!userId || !cartId || !orderItems?.length || !addressInfo || !totalAmount) {
       return res.status(400).json({ success: false, message: "Thiếu thông tin đơn hàng!" });
     }
 
@@ -42,7 +42,7 @@ const createOrder = async (req, res) => {
       const codOrder = new Order({
         userId,
         cartId,
-        cartItems,
+        orderItems,
         addressInfo,
         orderStatus,
         paymentMethod,
@@ -54,7 +54,8 @@ const createOrder = async (req, res) => {
       });
 
       await codOrder.save();
-      await updateProductQuantities(cartItems);
+      await updateProductQuantities(orderItems);
+      console.log('cart id',cartId)
       await Cart.findByIdAndDelete(cartId);
 
       return res.status(201).json({
@@ -94,7 +95,7 @@ const createOrder = async (req, res) => {
         momoOrder = {
           userId,
           cartId,
-          cartItems,
+          orderItems,
           addressInfo,
           orderStatus,
           paymentMethod,
@@ -150,7 +151,7 @@ const createOrder = async (req, res) => {
       const { id } = req.params;
   
       const order = await Order.findById(id);
-  
+      console.log("order",order)
       if (!order) {
         return res.status(404).json({
           success: false,
@@ -170,6 +171,7 @@ const createOrder = async (req, res) => {
       });
     }
   };
+  
   const momoIpnHandler = async (req, res) => {
     try {
       const { orderId } = req.body;
@@ -207,7 +209,7 @@ const createOrder = async (req, res) => {
           const newOrder = new Order({
             userId: momoOrder.userId,
             cartId: momoOrder.cartId,
-            cartItems: momoOrder.cartItems,
+            orderItems: momoOrder.orderItems,
             addressInfo:momoOrder.addressInfo,
             orderStatus: momoOrder.orderStatus,
             paymentMethod:momoOrder.paymentMethod,
@@ -218,7 +220,7 @@ const createOrder = async (req, res) => {
             paymentId: momoOrder.paymentId,
           })
           await newOrder.save();
-          await updateProductQuantities(momoOrder.cartItems);
+          await updateProductQuantities(momoOrder.orderItems);
           await Cart.findByIdAndDelete(momoOrder.cartId);
         return res.status(200).json({
           success: true,

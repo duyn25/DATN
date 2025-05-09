@@ -174,22 +174,31 @@ export const addressFormControls = [
   
     return [...baseFields, ...specFields];
   };
+  export const filterTitles = {
+  categoryId: "Danh mục",
+  brand: "Thương hiệu",
+ 
+};
+
   
   export const filterOptions = {
-    Hãng: [
-      { id: "menshirt", label: "Áo nam" },
-        { id: "womenshirt", label: "Áo nữ" },
-        { id: "kidsshirt", label: "Áo trẻ em" },
-        { id: "menpants", label: "Quần nam" }
+    categoryId: [
+        { id: "681d39a958ab62d31f6a7ee7", label: "Đèn pin" },
+        { id: "681d39c758ab62d31f6a7ef5", label: "Nồi cơm điện" },
+        { id: "681d39f358ab62d31f6a7f09", label: "Nồi lẩu điện" },
+        { id: "681a8bc225840b85e3b380b8", label: "Nồi chiên" },
+        { id: "681a8d2e25840b85e3b380e4", label: "Đèn điện" }
+        
     ],
     brand: [
-      { id: "nike", label: "Nike" },
-      { id: "adidas", label: "Adidas" },
-      { id: "puma", label: "Puma" },
-      { id: "levi", label: "Levi's" },
-      { id: "zara", label: "Zara" },
-      { id: "h&m", label: "H&M" },
+      { id: "Unie", label: "Unie" },
+      { id: "Sunhouse", label: "Sunhouse" },
+      { id: "Kangaroo", label: "Kangaroo" },
+      { id: "Goldsun", label: "Goldsun" },
+      { id: "Comet", label: "Goldsun" },
     ],
+    
+  
     
   };
 

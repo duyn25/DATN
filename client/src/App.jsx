@@ -22,6 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import ShoppingAccount from './pages/shopping-view/account'
 import ShoppingCheckout from './pages/shopping-view/checkout'
 import PaymentSuccessPage from './pages/shopping-view/payment-success'
+import SearchProducts from './pages/shopping-view/search'
 
 
 function App() {
@@ -68,6 +69,8 @@ function App() {
           <Route path='checkout' element={<ShoppingCheckout/>}/>
           <Route path='payment-success' element={<PaymentSuccessPage/>}/>
           <Route path='product/:productId' element={<ProductDetailPage/>}/>
+          <Route path='search' element={<SearchProducts/>}/>
+
 
 
           </Route>

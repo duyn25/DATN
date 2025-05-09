@@ -4,18 +4,18 @@ const Specification = require("../../models/productSpecification");
 
 const getFilteredProducts = async (req, res) => {
   try {
-    const { category = [], brand = [], sortBy = "price-lowtohigh" } = req.query;
+    const { categoryId = [], brand = [],sortBy = "price-lowtohigh" } = req.query;
 
     let filters = {};
 
-    if (category.length) {
-      filters.category = { $in: category.split(",") };
+    if (categoryId.length) {
+      filters.categoryId = { $in: categoryId.split(",") };
     }
 
     if (brand.length) {
       filters.brand = { $in: brand.split(",") };
     }
-
+    
     let sort = {};
 
     switch (sortBy) {
@@ -110,4 +110,6 @@ const getCategories = async (req, res) => {
     });
   }
 };
+
+
 module.exports = { getFilteredProducts, getProductDetails,getCategories };

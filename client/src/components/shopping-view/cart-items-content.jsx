@@ -95,7 +95,7 @@ function UserCartItemsContent({ cartItem }) {
     <div className="flex items-center space-x-4">
       <img
         src={cartItem?.image}
-        alt={cartItem?.title}
+        alt={cartItem?.productName}
         className="w-20 h-20 rounded object-cover"
       />
       <div className="flex-1">

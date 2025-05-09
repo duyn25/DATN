@@ -14,7 +14,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 
 
-function createSearchParamsHelper(filterParams) {
+export function createSearchParamsHelper(filterParams) {
     const queryParams = [];
   
     for (const [key, value] of Object.entries(filterParams)) {
@@ -24,9 +24,7 @@ function createSearchParamsHelper(filterParams) {
         queryParams.push(`${key}=${encodeURIComponent(paramValue)}`);
       }
     }
-  
-    console.log(queryParams, "queryParams");
-  
+    
     return queryParams.join("&");
   }
 
@@ -39,6 +37,7 @@ function ShoppingListing() {
     const [filters, setFilters] = useState();
     const [searchParams, setSearchParams] = useSearchParams();
     const[sort, setSort]= useState(null);
+    const categoryId = searchParams.get("categoryId");
     const categorySearchParam = searchParams.get("category");
     const {toast} = useToast();
 
@@ -66,7 +65,9 @@ function ShoppingListing() {
     
         setFilters(cpyFilters);
         sessionStorage.setItem("filters", JSON.stringify(cpyFilters));
+        
       }
+    
 
       function handleGetProductDetails(getCurrentProductId) {
         navigate(`/shop/product/${getCurrentProductId}`);
@@ -84,7 +85,7 @@ function ShoppingListing() {
           const getQuantity = getCartItems[indexOfCurrentItem].quantity;
           if (getQuantity + 1 > getTotalStock) {
             toast({
-              title: `Chỉ thêm được ${getQuantity} sản phẩm này`,
+              title: `Chỉ còn ${getQuantity} sản phẩm này`,
               variant: "destructive",
             });
   
@@ -108,8 +109,6 @@ function ShoppingListing() {
         }
       });
     }
-    
-
     useEffect(()=>{
     dispatch(fetchAllFilteredProducts())
     },[dispatch])
@@ -126,15 +125,24 @@ function ShoppingListing() {
       }, [filters]);
     
       useEffect(() => {
-        if (filters !== null && sort !== null)
+        if (filters !== null || sort !== null)
           dispatch(
             fetchAllFilteredProducts({ filterParams: filters, sortParams: sort })
           );
       }, [dispatch, sort, filters]);
     
-
+      useEffect(() => {
+      if (categoryId) {
+        dispatch(
+          fetchAllFilteredProducts({
+            filterParams: { categoryId },          
+            sortParams: "price-lowtohigh",         
+          })
+        );
+      }
+}, [categoryId, dispatch]);
     return ( 
-        <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 p-4 md:p-6">
+        <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-6 p-4 md:p-6">
         <ProductFilter filters={filters} handleFilter={handleFilter}/>
         <div className="bg-background w-full rounded-lg shadow-sm">
             <div className="p-4 border-b flex  items-center justify-between">

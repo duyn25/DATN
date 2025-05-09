@@ -8,6 +8,7 @@ import adminCategoryReducer from './admin/cate-slice'
 import adminOrderSlice from "./admin/order-slice";
 import shopCartSlice from './shop/cart-slice';
 import commonFeatureSlice from "./common-slice";
+import shopSearchSlice from "./shop/search-slice";
 import shopOrderSlice from "./shop/order-slice"
 import shopReviewSlice from "./shop/review-slice";
 
@@ -25,6 +26,7 @@ const store = configureStore({
         shopAdress: shopAdressSlice,
         shopCart: shopCartSlice,
         shopOrder:shopOrderSlice,
+        shopSearch: shopSearchSlice,
         commonFeature: commonFeatureSlice,
         shopReview: shopReviewSlice,
 

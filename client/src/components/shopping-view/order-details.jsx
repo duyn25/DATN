@@ -1,104 +1,90 @@
 import { useSelector } from "react-redux";
 import { Badge } from "../ui/badge";
-import { DialogContent, DialogTitle } from "@radix-ui/react-dialog";
+import { DialogContent } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { DialogTitle } from "@radix-ui/react-dialog";
+import { translateOrderStatus, translatePaymentStatus } from "../../lib/utils";
+
 
 function ShoppingOrderDetailsView({ orderDetails }) {
   const { user } = useSelector((state) => state.auth);
 
-  const renderOrderStatusBadge = (status) => {
-    switch (status) {
-      case "confirmed":
-        return "bg-green-500 text-white"; // Green
-      case "rejected":
-        return "bg-red-600 text-white"; // Red
-      default:
-        return "bg-black text-white"; // Black
-    }
-  };
-
   return (
-    <DialogContent className="sm:max-w-[600px] mx-auto mt-[] p-6">
-      <DialogTitle>
-        <VisuallyHidden>Chi tiết đơn hàng</VisuallyHidden>
-      </DialogTitle>
-
-      <div className="space-y-6">
-        <div className="space-y-2">
-          {/* Order ID */}
-          <div className="flex justify-between mt-6">
-            <p className="font-medium">ID</p>
-            <Label className="font-medium text-gray-700">{orderDetails?._id || "N/A"}</Label>
+    <DialogContent className="sm:max-w-[600px]">
+      <DialogTitle>Chi tiết đơn hàng</DialogTitle>
+      <div className="grid gap-6">
+        <div className="grid gap-2">
+          <div className="flex mt-6 items-center justify-between">
+            <p className="font-medium">Thời gian đặt hàng</p>
+            <Label>{new Date(orderDetails?.orderDate).toLocaleDateString()}</Label>
           </div>
-
-          {/* Order Date */}
-          <div className="flex justify-between mt-2">
-            <p className="font-medium">Ngày đặt hàng</p>
-            <Label className="font-medium text-gray-700">
-              {orderDetails?.orderDate ? orderDetails.orderDate.split("T")[0] : "N/A"}
-            </Label>
-          </div>
-
-          {/* Total Amount */}
-          <div className="flex justify-between mt-2">
+          <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Tổng</p>
-            <Label className="font-medium text-gray-700">
-              {orderDetails?.totalAmount ? orderDetails.totalAmount.toLocaleString() : "N/A"} đ
-            </Label>
+            <Label>{orderDetails?.totalAmount.toLocaleString()} đ</Label>
           </div>
-
-          {/* Payment Method */}
-          <div className="flex justify-between mt-2">
+          <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Phương thức thanh toán</p>
-            <Label className="font-medium text-gray-700">{orderDetails?.paymentMethod || "N/A"}</Label>
+            <Label>{orderDetails?.paymentMethod}</Label>
           </div>
-
-          {/* Payment Status */}
-          <div className="flex justify-between mt-2">
+          <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Tình trạng thanh toán</p>
-            <Label className="font-medium text-gray-700">{orderDetails?.paymentStatus || "N/A"}</Label>
+            <Label>{translatePaymentStatus(orderDetails?.paymentStatus)}</Label>
           </div>
-
-          {/* Order Status */}
-          <div className="flex justify-between mt-2">
+          <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Tình trạng đơn hàng</p>
             <Label>
-              <Badge className={`py-1 px-3 rounded-lg font-semibold ${renderOrderStatusBadge(orderDetails?.orderStatus)}`}>
-                {orderDetails?.orderStatus || "N/A"}
-              </Badge>
+                {translateOrderStatus( orderDetails?.orderStatus)}
             </Label>
           </div>
         </div>
-
-        <Separator className="my-4 border-t border-gray-300" />
-
-        <div className="space-y-4">
-          <div className="font-medium">Chi tiết đơn hàng</div>
-          <ul className="space-y-3">
-            {orderDetails?.cartItems && orderDetails.cartItems.length > 0 ? (
-              orderDetails.cartItems.map((item) => (
-                <li key={item._id} className="flex justify-between text-sm text-gray-700">
-                  <span>Tên: {item.title}</span>
-                  <span>Số lượng: {item.quantity}</span>
-                  <span>Giá: {item.price.toLocaleString()} đ</span>
-                </li>
-              ))
-            ) : (
-              <li className="text-muted-foreground">Không có sản phẩm nào</li>
-            )}
-          </ul>
+        <Separator />
+        <div className="grid gap-4">
+          <div className="grid gap-2">
+            <div className="font-medium">Chi tiết đơn hàng</div>
+            <ul className="grid gap-3">
+              {orderDetails?.orderItems && orderDetails?.orderItems.length > 0
+                ? orderDetails?.orderItems.map((item) => (
+                    <li className="flex items-center justify-between">
+                      <span>Tên: {item.productName}</span>
+                      <span>Số lượng: {item.quantity}</span>
+                      <span>Giá: {item.price.toLocaleString()} đ</span>
+                    </li>
+                  ))
+                : null}
+            </ul>
+          </div>
         </div>
+        <div className="grid gap-4">
+          <div className="grid gap-2">
+            <div className="font-medium">Thông tin giao hàng</div>
+            <div className="grid gap-0.5 text-muted-foreground">
+              <table className="table-auto w-full border-collapse">
+                <tbody>
+                  <tr>
+                    <td className="px-4 py-2 font-semibold">Tên khách hàng</td>
+                    <td className="px-4 py-2">{user.userName}</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 font-semibold">Địa chỉ</td>
+                    <td className="px-4 py-2">{orderDetails?.addressInfo?.address}</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 font-semibold">Thành phố</td>
+                    <td className="px-4 py-2">{orderDetails?.addressInfo?.city}</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 font-semibold">SĐT</td>
+                    <td className="px-4 py-2">{orderDetails?.addressInfo?.phone}</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 font-semibold">Ghi chú</td>
+                    <td className="px-4 py-2">{orderDetails?.addressInfo?.notes}</td>
+                  </tr>
+                </tbody>
+              </table>
 
-        <div className="space-y-4">
-          <div className="font-medium">Thông tin giao hàng</div>
-          <div className="space-y-1 text-gray-500">
-            <span>Tên khách hàng: {user?.userName || "N/A"}</span>
-            <span>Địa chỉ: {orderDetails?.addressInfo?.address || "N/A"}</span>
-            <span>Thành phố: {orderDetails?.addressInfo?.city || "N/A"}</span>
-            <span>SĐT: {orderDetails?.addressInfo?.phone || "N/A"}</span>
-            <span>Ghi chú: {orderDetails?.addressInfo?.notes || "N/A"}</span>
+            </div>
           </div>
         </div>
       </div>
