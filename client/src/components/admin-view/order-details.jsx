@@ -3,8 +3,8 @@ import CommonForm from "../common/form";
 import { DialogContent } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
-import { Badge } from "../ui/badge";
 import { useDispatch, useSelector } from "react-redux";
+import { translateOrderStatus, translatePaymentStatus } from "../../lib/utils";
 import {
   getAllOrdersForAdmin,
   getOrderDetailsForAdmin,
@@ -23,18 +23,17 @@ function AdminOrderDetailsView({ orderDetails }) {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  console.log(orderDetails, "orderDetailsorderDetails");
+  console.log(orderDetails, "orderDetail");
 
   function handleUpdateStatus(event) {
     event.preventDefault();
     const { status } = formData;
     console.log(formData,"order data")
-    const updatedData = { id: orderDetails?._id, orderStatus: status};
-    
-
-  if (status === "Delivered") {
-    orderDetails.paymentStatus = "paid";
-  }
+    const updatedData = {
+    id: orderDetails?._id,
+    orderStatus: status,
+    paymentStatus: status === "delivered" ? "paid" : orderDetails?.paymentStatus,
+  };
 
     dispatch(
       updateOrderStatus(updatedData)
@@ -62,13 +61,13 @@ function AdminOrderDetailsView({ orderDetails }) {
           </div>
           <div className="flex mt-1 items-center justify-between">
             <p className="font-medium">User ID</p>
-            <Label>{orderDetails?.userId}</Label>
+            <Label>{orderDetails?.userId?._id}</Label>
           </div>
           <div className="flex mt-1 items-center justify-between">
             <p className="font-medium">Thời gian đặt hàng</p>
             <Label>
             {orderDetails?.orderDate
-              ? new Date(orderDetails?.orderDate).toLocaleString() // Hiển thị ngày giờ đầy đủ
+              ? new Date(orderDetails?.orderDate).toLocaleString() 
               : ''}
           </Label>
           </div>
@@ -83,29 +82,19 @@ function AdminOrderDetailsView({ orderDetails }) {
           <div className="flex mt-1 items-center justify-between">
             <p className="font-medium">Tình trạng thanh toán</p>
             <Label>
-            {orderDetails?.orderStatus === "delivered" ? "paid" : orderDetails?.paymentStatus}</Label>
+            {orderDetails?.orderStatus === "delivered" ? "Đã thanh toán" : translatePaymentStatus(orderDetails?.paymentStatus)}</Label>
           </div>
           <div className="flex mt-1 items-center justify-between">
             <p className="font-medium">Tình trạng đơn hàng</p>
             <Label>
-              <Badge
-                className={`py-1 px-3 ${
-                  orderDetails?.orderStatus === "delivered"
-                    ? "bg-green-500"
-                    : orderDetails?.orderStatus === "rejected"
-                    ? "bg-red-600"
-                    : "bg-black"
-                }`}
-              >
-                {orderDetails?.orderStatus}
-              </Badge>
+                {translateOrderStatus(orderDetails?.orderStatus)}
             </Label>
           </div>
         </div>
         <Separator />
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <div className="font-medium">Chi tiết đơn hàng</div>
+            <div className="font-medium">Sản phẩm</div>
             <ul className="grid gap-3">
               {orderDetails?.orderItems && orderDetails?.orderItems.length > 0
                 ? orderDetails?.orderItems.map((item) => (
@@ -127,7 +116,7 @@ function AdminOrderDetailsView({ orderDetails }) {
                 <tbody>
                   <tr>
                     <td className="px-4 py-2 font-semibold">Tên khách hàng</td>
-                    <td className="px-4 py-2">{user.userName}</td>
+                    <td className="px-4 py-2">{orderDetails?.userId?.userName}</td>
                   </tr>
                   <tr>
                     <td className="px-4 font-semibold">Địa chỉ</td>
@@ -159,11 +148,12 @@ function AdminOrderDetailsView({ orderDetails }) {
                 name: "status",
                 componentType: "select",
                 options: [
-                  { id: "pending", label: "Pending" },
-                  { id: "inProcess", label: "In process" },
-                  { id: "inShipping", label: "Shipping" },
-                  { id: "delivered", label: "Delivered" },
-                  { id: "rejected", label: "Rejected" },
+                  { id: "pending", label: "Chờ xác nhận" },
+                  { id: "confirm", label: "Đã xác nhận" },
+                  { id: "processing", label: "Đang chuẩn bị hàng" },
+                  { id: "shipped", label: "Đang giao hàng" },
+                  { id: "delivered", label: "Đã giao hàng" },
+                  { id: "cancelled", label: "Huỷ đơn hàng" },
                 ],
               },
             ]}

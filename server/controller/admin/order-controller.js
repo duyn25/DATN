@@ -29,7 +29,11 @@ const getOrderDetailsForAdmin = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const order = await Order.findById(id);
+    const order = await Order.findById(id).populate({
+      path: "userId",
+      select: "userName", 
+      model:"User"
+    });;
 
     if (!order) {
       return res.status(404).json({
@@ -37,7 +41,7 @@ const getOrderDetailsForAdmin = async (req, res) => {
         message: "Order not found!",
       });
     }
-
+  console.log("order",order)
     res.status(200).json({
       success: true,
       data: order,
@@ -54,7 +58,7 @@ const getOrderDetailsForAdmin = async (req, res) => {
 const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { orderStatus } = req.body;
+    const { orderStatus,paymentStatus } = req.body;
 
     const order = await Order.findById(id);
 
@@ -64,8 +68,7 @@ const updateOrderStatus = async (req, res) => {
         message: "Order not found!",
       });
     }
-
-    await Order.findByIdAndUpdate(id, { orderStatus });
+    await Order.findByIdAndUpdate(id, { orderStatus,paymentStatus });
 
     res.status(200).json({
       success: true,

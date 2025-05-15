@@ -16,7 +16,7 @@ function ShoppingProductTile({
           <img
             src={product?.image}
             alt={product?.productName}
-            className="w-full h-[300px] object-cover rounded-t-lg"
+            className="object-cover rounded-t-lg"
           />
           {product?.totalStock === 0 ? (
             <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
@@ -32,9 +32,7 @@ function ShoppingProductTile({
             </Badge>
           ) : null}
         </div>
-        <CardContent className="p-4">
-          <h2 className="text-xl font-bold mb-2">{product?.title}</h2>
-          
+        <CardContent className="p-4">          
           <div className="flex flex-col mb-2">
             <span
               className={`${

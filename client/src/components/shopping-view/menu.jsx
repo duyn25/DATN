@@ -1,20 +1,20 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchCategories } from "@/store/shop/product-slice";
 import { useDispatch, useSelector } from "react-redux";
-
+import { fetchCategories } from "@/store/shop/product-slice";
 
 export default function MenuItems() {
   const navigate = useNavigate();
-  const { categoryList } = useSelector((state) => state.shopProduct);
   const dispatch = useDispatch();
+  const { categoryList } = useSelector((state) => state.shopProduct);
 
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
-  console.log("catelist: ",categoryList)
+
   const handleCategoryClick = (categoryId) => {
-  navigate(`/shop/product?categoryId=${categoryId}`);  };
+    navigate(`/shop/product?categoryId=${categoryId}`);
+  };
 
   return (
     <div className="flex w-[250px] border rounded-xl shadow-xl bg-gray-100">

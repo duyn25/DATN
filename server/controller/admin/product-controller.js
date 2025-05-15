@@ -140,6 +140,7 @@ const editProduct = async (req, res) => {
     findProduct.salePrice = salePrice === "" ? 0 : salePrice || findProduct.salePrice;
     findProduct.totalStock = totalStock || findProduct.totalStock;
     findProduct.image = image || findProduct.image;
+    console.log("findProduct.image",req.body)
     findProduct.averageReview = averageReview || findProduct.averageReview;
     await findProduct.save();
     await ProductSpecification.deleteMany({ productId: id });

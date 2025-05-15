@@ -23,6 +23,7 @@ import ShoppingAccount from './pages/shopping-view/account'
 import ShoppingCheckout from './pages/shopping-view/checkout'
 import PaymentSuccessPage from './pages/shopping-view/payment-success'
 import SearchProducts from './pages/shopping-view/search'
+import AdminStatistics from './pages/admin-view/statistics'
 
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
           <Route path='category' element={<AdminCategory/>}/>
           <Route path='specification' element={<AdminSpecification/>}/>
           <Route path='orders' element={<AdminOrders/>}/>
+          <Route path='statistics' element={<AdminStatistics/>}/>
         </Route>
         <Route>
           <Route path='/shop' element={

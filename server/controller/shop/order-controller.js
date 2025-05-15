@@ -9,7 +9,7 @@ const partnerCode = "MOMO";
 const accessKey = "F8BBA842ECF85";
 const secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
 const redirectUrl = "http://localhost:5173/shop/payment-success";  
-const ipnUrl = "https://83fd-2402-800-61c5-4f6b-1091-168a-86b1-f45a.ngrok-free.app/api/shop/order/momo-ipn";  
+const ipnUrl = "https://29ac-2402-800-61c5-6500-58ae-f5eb-510c-ffa2.ngrok-free.app/api/shop/order/momo-ipn";  
 let momoOrder = {};
 const updateProductQuantities = async (orderItems) => {
   for (const item of orderItems) {

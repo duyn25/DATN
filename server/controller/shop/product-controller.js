@@ -1,59 +1,78 @@
 const Product = require("../../models/Product");
+const CategorySpec = require("../../models/categorySpec");
 const Category = require("../../models/categoryList");
 const Specification = require("../../models/productSpecification");
+const SpecDefinition = require("../../models/specificationList");
 
 const getFilteredProducts = async (req, res) => {
   try {
-    const { categoryId = [], brand = [],sortBy = "price-lowtohigh" } = req.query;
+    const {
+      categoryId,
+      brand,
+      minPrice,
+      maxPrice,
+      specs: specsRaw
+    } = req.query;
 
-    let filters = {};
+    const query = {};
 
-    if (categoryId.length) {
-      filters.categoryId = { $in: categoryId.split(",") };
+    // Chỉ thêm nếu hợp lệ
+    if (categoryId && categoryId !== "") {
+      query.categoryId = categoryId;
     }
 
-    if (brand.length) {
-      filters.brand = { $in: brand.split(",") };
-    }
-    
-    let sort = {};
-
-    switch (sortBy) {
-      case "price-lowtohigh":
-        sort.price = 1;
-
-        break;
-      case "price-hightolow":
-        sort.price = -1;
-
-        break;
-      case "title-atoz":
-        sort.title = -1;
-
-        break;
-
-      case "title-ztoa":
-        sort.title = 1;
-
-        break;
-
-      default:
-        sort.price = 1;
-        break;
+    if (brand && typeof brand === "string" && brand.trim() !== "") {
+      query.brand = { $in: brand.split(',') };
     }
 
-    const products = await Product.find(filters).sort(sort);
+    if (minPrice || maxPrice) {
+      const min = parseFloat(minPrice || 0);
+      const max = parseFloat(maxPrice || Infinity);
+      query.$or = [
+        { price: { $gte: min, $lte: max } },
+        { salePrice: { $gte: min, $lte: max } },
+      ];
+    }
 
-    res.status(200).json({
-      success: true,
-      data: products,
-    });
-  } catch (e) {
-    console.log(error);
-    res.status(500).json({
-      success: false,
-      message: "Some error occured",
-    });
+    let products = await Product.find(query);
+
+    // Xử lý lọc theo thông số
+    if (specsRaw) {
+      let parsedSpecs = {};
+      try {
+        parsedSpecs = JSON.parse(specsRaw);
+      } catch (err) {
+        parsedSpecs = {};
+      }
+
+      const validSpecConditions = Object.entries(parsedSpecs)
+        .filter(([specId, values]) =>
+          /^[a-fA-F0-9]{24}$/.test(specId) &&
+          Array.isArray(values) &&
+          values.length > 0
+        )
+        .map(([specId, values]) => ({
+          specId,
+          value: { $in: values }
+        }));
+
+      if (validSpecConditions.length > 0 && products.length > 0) {
+        const productIds = products.map(p => p._id);
+
+        const matchingSpecs = await Specification.find({
+          productId: { $in: productIds },
+          $or: validSpecConditions
+        });
+
+        const matchedProductIds = matchingSpecs.map(m => m.productId.toString());
+        products = products.filter(p => matchedProductIds.includes(p._id.toString()));
+      }
+    }
+
+    res.status(200).json({ success: true, data: products });
+  } catch (error) {
+    console.error("Lỗi khi lọc sản phẩm:", error);
+    res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };
 
@@ -69,16 +88,19 @@ const getProductDetails = async (req, res) => {
       });
     }
 
-    const specifications = await Specification.
-    find({ productId: product._id }).populate({
-      path: 'specId', 
-      select: 'specName specUnit', 
-      model: 'specificationList'
-    }).lean();
+    const specifications = await Specification
+      .find({ productId: product._id })
+      .populate({
+        path: 'specId',
+        select: 'specName specUnit',
+        model: 'specificationList'
+      }).lean();
+
     const formattedSpecs = specifications.map((spec) => ({
       name: spec.specId?.specName || "Thông số không xác định",
       value: `${spec.value} ${spec.specId?.specUnit || ""}`.trim(),
     }));
+
     return res.status(200).json({
       success: true,
       data: {
@@ -92,6 +114,47 @@ const getProductDetails = async (req, res) => {
       success: false,
       message: "Some error occurred",
     });
+  }
+};
+
+const getFilterFieldsByCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.query;
+    if (!categoryId) {
+      return res.status(400).json({ success: false, message: "Thiếu categoryId" });
+    }
+
+    const products = await Product.find({ categoryId }).select("_id").lean();
+    const productIds = products.map((p) => p._id);
+
+    const catSpecs = await CategorySpec.find({ categoryId }).lean();
+    const specIds = catSpecs.map(cs => cs.specId);
+
+    const specs = await SpecDefinition.find({ _id: { $in: specIds } }).lean();
+
+    const specValues = await Specification.find({
+      productId: { $in: productIds },
+      specId: { $in: specIds }
+    }).lean();
+
+    const valueMap = {};
+    specValues.forEach(spec => {
+      const id = spec.specId.toString();
+      const rawValue = (spec.value || "").toString().trim();
+      if (!rawValue) return;
+      if (!valueMap[id]) valueMap[id] = new Set();
+      valueMap[id].add(rawValue);
+    });
+
+    const enrichedSpecs = specs.map(spec => ({
+      ...spec,
+      values: Array.from(valueMap[spec._id.toString()] || []).sort()
+    }));
+
+    res.status(200).json({ success: true, data: enrichedSpecs });
+  } catch (error) {
+    console.error("Lỗi khi lấy thông số lọc:", error);
+    res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };
 
@@ -111,5 +174,9 @@ const getCategories = async (req, res) => {
   }
 };
 
-
-module.exports = { getFilteredProducts, getProductDetails,getCategories };
+module.exports = {
+  getFilteredProducts,
+  getFilterFieldsByCategory,
+  getProductDetails,
+  getCategories
+};

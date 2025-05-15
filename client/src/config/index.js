@@ -176,7 +176,8 @@ export const addressFormControls = [
   };
   export const filterTitles = {
   categoryId: "Danh mục",
-  brand: "Thương hiệu",
+  brand: "Hãng",
+  priceRange: "Mức giá"
  
 };
 
@@ -195,11 +196,15 @@ export const addressFormControls = [
       { id: "Sunhouse", label: "Sunhouse" },
       { id: "Kangaroo", label: "Kangaroo" },
       { id: "Goldsun", label: "Goldsun" },
-      { id: "Comet", label: "Goldsun" },
+      { id: "Comet", label: "Comet" },
     ],
-    
-  
-    
+    priceRange: [
+    { id: "0-500000", label: "Dưới 500.000đ" },
+    { id: "500000-1000000", label: "500.000đ - 1.000.000đ" },
+    { id: "1000000-2000000", label: "1.000.000đ - 2.000.000đ" },
+    { id: "2000000-999999999", label: "Trên 2.000.000đ" }
+  ],
+   
   };
 
   export const sortOptions = [

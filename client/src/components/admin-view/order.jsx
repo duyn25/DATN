@@ -65,7 +65,7 @@ function AdminOrdersView() {
                     <TableCell>{orderItem?._id}</TableCell>
                     <TableCell>
                   {orderItem?.orderDate
-                    ? new Date(orderItem?.orderDate).toLocaleString() // Hiển thị ngày giờ đầy đủ
+                    ? new Date(orderItem?.orderDate).toLocaleString()
                     : ''}
                 
                 </TableCell>
@@ -87,7 +87,7 @@ function AdminOrdersView() {
                             handleFetchOrderDetails(orderItem?._id)
                           }
                         >
-                          View Details
+                          Chi tiết
                         </Button>
                         <AdminOrderDetailsView orderDetails={orderDetails} />
                       </Dialog>

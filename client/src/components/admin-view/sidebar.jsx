@@ -12,6 +12,11 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 
 const adminSidebarMenuItems = [
   {
+    id: "statistics",
+    label: "Thống kê",
+    path: "/admin/statistics",
+     icon: <ChartNoAxesCombined />  },
+  {
     id: "dashboard",
     label: "Dashboard",
     path: "/admin/dashboard",

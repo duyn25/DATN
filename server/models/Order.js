@@ -39,13 +39,13 @@ const OrderSchema = new mongoose.Schema({
   orderStatus: {
     type: String,
     enum: [
-      "pending",      // Đơn hàng mới được tạo, chờ xác nhận
-      "confirmed",    // Admin đã xác nhận đơn
-      "processing",   // Đang chuẩn bị hàng
-      "shipped",      // Đã giao cho đơn vị vận chuyển
-      "delivered",    // Đã giao tới khách hàng
-      "cancelled",    // Khách hoặc admin huỷ
-      "returned"      // Khách hoàn trả
+      "pending",      
+      "confirmed",    
+      "processing",   
+      "shipped",     
+      "delivered",    
+      "cancelled",   
+      "returned"      
     ],
     default: "pending"
   },
@@ -58,12 +58,12 @@ const OrderSchema = new mongoose.Schema({
   paymentStatus: {
     type: String,
     enum: [
-      "pending",    // Đã tạo đơn nhưng chưa thanh toán (MoMo chưa redirect hoặc COD chưa giao)
-      "unpaid",     // Cố gắng thanh toán nhưng thất bại hoặc chưa thanh toán
-      "paid",       // Thanh toán thành công (MoMo redirect hoặc đã nhận tiền)
-      "failed",     // Thanh toán thất bại (MoMo báo lỗi, user huỷ, timeout)
-      "refunded",   // Đã hoàn tiền
-      "cancelled"   // Đơn bị huỷ (chưa thanh toán hoặc đã được hoàn)
+      "pending",    
+      "unpaid",    
+      "paid",       
+      "failed",     
+      "refunded",   
+      "cancelled"   
     ],
     default: "pending"
   }

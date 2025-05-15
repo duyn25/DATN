@@ -9,7 +9,7 @@ export const translateOrderStatus = (status) => {
     case "pending": return "Chờ xác nhận";
     case "confirmed": return "Đã xác nhận";
     case "processing": return "Đang xử lý";
-    case "shipped": return "Đã giao vận chuyển";
+    case "shipped": return "Đang vận chuyển";
     case "delivered": return "Đã giao";
     case "cancelled": return "Đã huỷ";
     case "returned": return "Đã hoàn trả";
