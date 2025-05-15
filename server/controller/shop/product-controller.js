@@ -11,20 +11,23 @@ const getFilteredProducts = async (req, res) => {
       brand,
       minPrice,
       maxPrice,
-      specs: specsRaw
+      specs: specsRaw,
+      sortBy,
     } = req.query;
 
     const query = {};
 
-    // Chỉ thêm nếu hợp lệ
+    // Bộ lọc theo category
     if (categoryId && categoryId !== "") {
       query.categoryId = categoryId;
     }
 
+    // Bộ lọc theo hãng
     if (brand && typeof brand === "string" && brand.trim() !== "") {
       query.brand = { $in: brand.split(',') };
     }
 
+    // Bộ lọc theo giá
     if (minPrice || maxPrice) {
       const min = parseFloat(minPrice || 0);
       const max = parseFloat(maxPrice || Infinity);
@@ -34,9 +37,18 @@ const getFilteredProducts = async (req, res) => {
       ];
     }
 
-    let products = await Product.find(query);
+    // Xử lý sắp xếp
+    const sortMap = {
+      "price-lowtohigh": { price: 1 },
+      "price-hightolow": { price: -1 },
+      "title-atoz": { productName: 1 },
+      "title-ztoa": { productName: -1 },
+    };
+    const sortQuery = sortMap[sortBy] || {};
 
-    // Xử lý lọc theo thông số
+    let products = await Product.find(query).sort(sortQuery);
+
+    // Lọc theo thông số kỹ thuật
     if (specsRaw) {
       let parsedSpecs = {};
       try {
@@ -51,21 +63,43 @@ const getFilteredProducts = async (req, res) => {
           Array.isArray(values) &&
           values.length > 0
         )
-        .map(([specId, values]) => ({
-          specId,
-          value: { $in: values }
-        }));
+        .flatMap(([specId, ranges]) =>
+          ranges.map((range) => {
+            if (typeof range === "string" && range.includes("-")) {
+              const [min, max] = range.split("-").map(Number);
+              return {
+                $expr: {
+                  $and: [
+                    { $eq: ["$specId", { $toObjectId: specId }] },
+                    { $gte: [{ $toDouble: "$value" }, min] },
+                    { $lte: [{ $toDouble: "$value" }, max] },
+                  ],
+                },
+              };
+            } else {
+              return {
+                specId,
+                value: range,
+              };
+            }
+          })
+        );
 
       if (validSpecConditions.length > 0 && products.length > 0) {
-        const productIds = products.map(p => p._id);
+        const productIds = products.map((p) => p._id);
 
         const matchingSpecs = await Specification.find({
           productId: { $in: productIds },
-          $or: validSpecConditions
+          $or: validSpecConditions,
         });
 
-        const matchedProductIds = matchingSpecs.map(m => m.productId.toString());
-        products = products.filter(p => matchedProductIds.includes(p._id.toString()));
+        const matchedProductIds = matchingSpecs.map((m) =>
+          m.productId.toString()
+        );
+
+        products = products.filter((p) =>
+          matchedProductIds.includes(p._id.toString())
+        );
       }
     }
 
@@ -75,6 +109,8 @@ const getFilteredProducts = async (req, res) => {
     res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };
+
+
 
 const getProductDetails = async (req, res) => {
   try {

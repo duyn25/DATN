@@ -5,8 +5,21 @@ const ProductFilter = ({ filters, handleFilter }) => {
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [filterFields, setFilterFields] = useState([]);
-
   const selectedCategory = filters?.categoryId || "";
+
+  const specRangePresets = {
+    "680ad9e2bf49fe283ffc91ec": [ 
+      { id: "0-500", label: "Dưới 500W" },
+      { id: "501-1000", label: "500W - 1000W" },
+      { id: "1001-999999", label: "Trên 1000W" },
+    ],
+     "681a8098608d859da8b3c85c": [ 
+    { id: "0-5", label: "Dưới 5 lít" },
+    { id: "5-10", label: "5 - 10 lít" },
+    { id: "10-999", label: "Trên 10 lít" },
+  ],
+   
+  };
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/admin/category/get')
@@ -25,16 +38,11 @@ const ProductFilter = ({ filters, handleFilter }) => {
   }, []);
 
   useEffect(() => {
-  if (!selectedCategory) return;
-
-  axios.get(`http://localhost:5000/api/shop/product/filters?categoryId=${selectedCategory}`)
-    .then(res => {
-      console.log("📦 Filter fields từ API:", res.data.data); // ✅ Log ra để kiểm tra
-      setFilterFields(res.data.data);
-    })
-    .catch(err => console.error('Lỗi khi tải thông số lọc', err));
-}, [selectedCategory]);
-
+    if (!selectedCategory) return;
+    axios.get(`http://localhost:5000/api/shop/product/filters?categoryId=${selectedCategory}`)
+      .then(res => setFilterFields(res.data.data))
+      .catch(err => console.error('Lỗi khi tải thông số lọc', err));
+  }, [selectedCategory]);
 
   const staticPriceRanges = [
     { id: "0-500000", label: "Dưới 500.000đ" },
@@ -94,21 +102,36 @@ const ProductFilter = ({ filters, handleFilter }) => {
       </div>
 
       {filterFields.map(spec => (
-        <div key={spec._id}>
-          <h4 className="font-bold mb-2">{spec.specName}</h4>
-          {(spec.values || []).map((val, idx) => (
-            <label key={idx} className="block text-sm mb-1">
-              <input
-                type="checkbox"
-                checked={filters?.[spec._id]?.includes(val) || false}
-                onChange={() => handleCheckboxChange(spec._id, val)}
-                className="mr-2"
-              />
-              {val}
-            </label>
-          ))}
-        </div>
-      ))}
+  <div key={spec._id}>
+    <h4 className="font-bold mb-2">{spec.specName}</h4>
+
+    {spec.specType === "number" && specRangePresets[spec._id]
+      ? specRangePresets[spec._id].map((range) => (
+          <label key={range.id} className="block text-sm mb-1">
+            <input
+              type="checkbox"
+              checked={filters?.[spec._id]?.includes(range.id) || false}
+              onChange={() => handleCheckboxChange(spec._id, range.id)}
+              className="mr-2"
+            />
+            {range.label}
+          </label>
+        ))
+      : (spec.values || []).map((val, idx) => (
+          <label key={idx} className="block text-sm mb-1">
+            <input
+              type="checkbox"
+              checked={filters?.[spec._id]?.includes(val) || false}
+              onChange={() => handleCheckboxChange(spec._id, val)}
+              className="mr-2"
+            />
+            {val}
+            {spec.specUnit ? ` ${spec.specUnit}` : ""}
+          </label>
+        ))}
+  </div>
+))}
+
     </aside>
   );
 };

@@ -18,7 +18,8 @@ import {
 import { fetchAllCategories } from "@/store/admin/cate-slice";
 import { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import ProductForm from "@/components//admin-view/product-form";
+import ProductForm from "@/components/admin-view/product-form";
+import axios from "axios";
 
 const initialFormData = {
   image: null,
@@ -30,7 +31,7 @@ const initialFormData = {
   salePrice: "",
   totalStock: "",
   averageReview: 0,
-  specifications: [],
+  specifications: {}, 
 };
 
 function AdminProducts() {
@@ -54,20 +55,21 @@ function AdminProducts() {
     }
   }, [dispatch]);
 
-  useEffect(() => {
-    if (formData.categoryId) {
-      const selectedCategory = categoryList.find(
-        (cat) => cat._id === formData.categoryId
-      );
-      if (selectedCategory) {
-        setSelectedCategorySpecs(selectedCategory.specifications || []);
-      }
-    } else {
-      setSelectedCategorySpecs([]);
-    }
-  }, [formData.categoryId, categoryList]);
+ useEffect(() => {
+  if (formData.categoryId) {
+    axios
+      .get(`http://localhost:5000/api/shop/product/filters?categoryId=${formData.categoryId}`)
+      .then(res => {
+        setSelectedCategorySpecs(res.data.data); 
+      })
+      .catch(err => console.error("Lỗi khi tải thông số", err));
+  } else {
+    setSelectedCategorySpecs([]);
+  }
+}, [formData.categoryId]);
 
-  function onSubmit(event) {
+
+  const onSubmit = (event) => {
     event.preventDefault();
 
     if (parseFloat(formData.salePrice) >= parseFloat(formData.price)) {
@@ -87,42 +89,35 @@ function AdminProducts() {
       dispatch(editProduct({ id: currentEditedId, formData: payload })).then((data) => {
         if (data?.payload?.success) {
           dispatch(fetchAllProducts());
-          setFormData(initialFormData);
-          setOpenCreateProductsDialog(false);
-          setCurrentEditedId(null);
+          resetForm();
         }
       });
     } else {
       dispatch(addNewProduct(payload)).then((data) => {
         if (data?.payload?.success) {
           dispatch(fetchAllProducts());
-          setOpenCreateProductsDialog(false);
-          setImageFile(null);
-          setFormData(initialFormData);
-          toast({
-            title: "Thêm sản phẩm thành công",
-          });
+          resetForm();
+          toast({ title: "Thêm sản phẩm thành công" });
         }
       });
     }
-  }
-  useEffect(() => {
-    console.log("Danh sách danh mục:", categoryList);
-  }, [categoryList]);
-  
-  function handleDelete(getCurrentProductId) {
-    dispatch(deleteProduct(getCurrentProductId)).then((data) => {
+  };
+
+  const handleDelete = (productId) => {
+    dispatch(deleteProduct(productId)).then((data) => {
       if (data?.payload?.success) {
         dispatch(fetchAllProducts());
       }
     });
-  }
+  };
 
-  function isFormValid() {
-    return Object.keys(formData)
-      .map((key) => (Array.isArray(formData[key]) ? formData[key].length > 0 : formData[key] !== ""))
-      .every(Boolean);
-  }
+  const resetForm = () => {
+    setOpenCreateProductsDialog(false);
+    setCurrentEditedId(null);
+    setFormData(initialFormData);
+    setImageFile(null);
+    setUploadedImageUrl("");
+  };
 
   return (
     <Fragment>
@@ -149,11 +144,7 @@ function AdminProducts() {
 
       <Sheet
         open={openCreateProductsDialog}
-        onOpenChange={() => {
-          setOpenCreateProductsDialog(false);
-          setCurrentEditedId(null);
-          setFormData(initialFormData);
-        }}
+        onOpenChange={resetForm}
       >
         <SheetContent side="right" className="overflow-auto">
           <SheetHeader>
@@ -178,9 +169,8 @@ function AdminProducts() {
               formData={formData}
               setFormData={setFormData}
               buttonText={currentEditedId !== null ? "Sửa" : "Thêm"}
-              formControls={addProductFormElements(categoryList, selectedCategorySpecs)} 
+              formControls={addProductFormElements(categoryList, selectedCategorySpecs)}
             />
-
           </div>
         </SheetContent>
       </Sheet>

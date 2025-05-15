@@ -6,17 +6,25 @@ const initialState = {
   productList: [],
 };
 
+// ✅ Helper
+const transformSpecifications = (specObj = {}) =>
+  Object.entries(specObj).map(([specId, value]) => ({ specId, value }));
+
 export const addNewProduct = createAsyncThunk(
   "/products/addnewproduct",
   async (formData) => {
+    const payload = {
+      ...formData,
+      specifications: transformSpecifications(formData.specifications),
+    };
+
     const result = await axios.post(
       "http://localhost:5000/api/admin/product/add",
-      formData,
+      payload,
       {
         headers: {
           "Content-Type": "application/json",
         },
-        
       }
     );
 
@@ -27,10 +35,7 @@ export const addNewProduct = createAsyncThunk(
 export const fetchAllProducts = createAsyncThunk(
   "/products/fetchAllProducts",
   async () => {
-    const result = await axios.get(
-      "http://localhost:5000/api/admin/product/get"
-    );
-
+    const result = await axios.get("http://localhost:5000/api/admin/product/get");
     return result?.data;
   }
 );
@@ -38,9 +43,14 @@ export const fetchAllProducts = createAsyncThunk(
 export const editProduct = createAsyncThunk(
   "/products/editProduct",
   async ({ id, formData }) => {
+    const payload = {
+      ...formData,
+      specifications: transformSpecifications(formData.specifications),
+    };
+
     const result = await axios.put(
       `http://localhost:5000/api/admin/product/edit/${id}`,
-      formData,
+      payload,
       {
         headers: {
           "Content-Type": "application/json",
@@ -58,7 +68,6 @@ export const deleteProduct = createAsyncThunk(
     const result = await axios.delete(
       `http://localhost:5000/api/admin/product/delete/${id}`
     );
-
     return result?.data;
   }
 );
@@ -76,7 +85,7 @@ const AdminProductSlice = createSlice({
         state.isLoading = false;
         state.productList = action.payload.data;
       })
-      .addCase(fetchAllProducts.rejected, (state, action) => {
+      .addCase(fetchAllProducts.rejected, (state) => {
         state.isLoading = false;
         state.productList = [];
       });

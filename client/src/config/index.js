@@ -39,40 +39,48 @@ export const loginFormControls = [
     },
 ];
 
-export const addSpecFormElements =[
-    
-    {
-        label: "Tên thông số",
-        name: "specName",
-        componentType: "input",
-        type: "text",
-        placeholder: "Nhập tên thông số",
-        },
-        {
-        label: "Mô tả",
-        name: "specDescription",
-        componentType: "textarea",
-        placeholder: "Nhập mô tả",
-        },
-        {
-            label: "Kiểu dữ liệu",
-            name: "specType",
-            type: "text",
-            componentType: "select",
-            options: [
-                { id: "number", label: "Number" },
-                { id: "text", label: "Text" },
-            ],
-            },
-            
-        {
-            label: "Đơn vị",
-            name: "specUnit",
-            type: "text",
-            placeholder: "Nhập đơn vị",
-        },
-    
+export const addSpecFormElements = [
+  {
+    label: "Tên thông số",
+    name: "specName",
+    componentType: "input",
+    type: "text",
+    placeholder: "Nhập tên thông số",
+  },
+  {
+    label: "Mô tả",
+    name: "specDescription",
+    componentType: "textarea",
+    placeholder: "Nhập mô tả",
+  },
+  {
+    label: "Kiểu dữ liệu",
+    name: "specType",
+    type: "text",
+    componentType: "select",
+    options: [
+      { id: "number", label: "Number" },
+      { id: "text", label: "Text" },
+      { id: "select", label: "Select" },
+    ],
+  },
+  {
+    label: "Đơn vị",
+    name: "specUnit",
+    type: "text",
+    componentType: "input",
+    placeholder: "Nhập đơn vị (nếu có)",
+  },
+  {
+    label: "Danh sách lựa chọn",
+    name: "allowedValues",
+    componentType: "textarea",
+    placeholder: "Nhập mỗi giá trị 1 dòng, ví dụ:\nCảm ứng\nNút nhấn\nXoay",
+    condition: (formData) => formData?.specType === "select", 
+  },
 ];
+
+
 
 export const addressFormControls = [
     {
@@ -163,49 +171,33 @@ export const addressFormControls = [
         placeholder: "Nhập số lượng",
       },
     ];
-  
-    const specFields = selectedCategorySpecs.map((spec) => ({
+    const specFields = selectedCategorySpecs.map((spec) => {
+  if (spec.allowedValues && spec.allowedValues.length > 0) {
+    return {
       label: spec.specName,
       name: `specifications.${spec._id}`,
-      componentType: "input",
-      type: "text",
-      placeholder: `Nhập ${spec.specName}`,
-    }));
+      componentType: "select",
+      options: spec.allowedValues.map((val) => ({
+        id: val,
+        label: `${val}${spec.specUnit ? " " + spec.specUnit : ""}`,
+      })),
+    };
+  }
+
+  return {
+    label: spec.specName,
+    name: `specifications.${spec._id}`,
+    componentType: "input",
+    type: spec.specType === "number" ? "number" : "text",
+    placeholder: `Nhập ${spec.specName}`,
+  };
+});
+
+
   
     return [...baseFields, ...specFields];
   };
-  export const filterTitles = {
-  categoryId: "Danh mục",
-  brand: "Hãng",
-  priceRange: "Mức giá"
- 
-};
 
-  
-  export const filterOptions = {
-    categoryId: [
-        { id: "681d39a958ab62d31f6a7ee7", label: "Đèn pin" },
-        { id: "681d39c758ab62d31f6a7ef5", label: "Nồi cơm điện" },
-        { id: "681d39f358ab62d31f6a7f09", label: "Nồi lẩu điện" },
-        { id: "681a8bc225840b85e3b380b8", label: "Nồi chiên" },
-        { id: "681a8d2e25840b85e3b380e4", label: "Đèn điện" }
-        
-    ],
-    brand: [
-      { id: "Unie", label: "Unie" },
-      { id: "Sunhouse", label: "Sunhouse" },
-      { id: "Kangaroo", label: "Kangaroo" },
-      { id: "Goldsun", label: "Goldsun" },
-      { id: "Comet", label: "Comet" },
-    ],
-    priceRange: [
-    { id: "0-500000", label: "Dưới 500.000đ" },
-    { id: "500000-1000000", label: "500.000đ - 1.000.000đ" },
-    { id: "1000000-2000000", label: "1.000.000đ - 2.000.000đ" },
-    { id: "2000000-999999999", label: "Trên 2.000.000đ" }
-  ],
-   
-  };
 
   export const sortOptions = [
     { id: "price-lowtohigh", label: "Giá: Thấp -> cao" },

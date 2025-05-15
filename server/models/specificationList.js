@@ -13,5 +13,9 @@ const specificationSchema = new mongoose.Schema({
     default: 'text',
   },
   specUnit: String, 
+  allowedValues: {
+    type: [String],
+    default: [],
+  },
 });
 module.exports =  mongoose.model('specificationList', specificationSchema);

@@ -25,55 +25,57 @@ import {
 } from "@/store/admin/spec-slice";
 import { Fragment, useEffect, useState } from "react";
 import AdminSpecTile from "@/components/admin-view/spec-tile";
+
 const initialSpec = {
   specName: "",
   specType: "",
-  specDescription:"",
+  specDescription: "",
   specUnit: "",
-  
+  allowedValues: "", // Chuỗi textarea, mỗi dòng là 1 giá trị
 };
 
 function AdminSpecifications() {
   const [openForm, setOpenForm] = useState(false);
   const [formData, setFormData] = useState(initialSpec);
   const [currentEditedId, setCurrentEditedId] = useState(null);
-  const {specificationList} = useSelector((state) => state.adminSpecifications);
+  const { specificationList } = useSelector((state) => state.adminSpecifications);
   const dispatch = useDispatch();
   const { toast } = useToast();
 
   function onSubmit(event) {
     event.preventDefault();
-    currentEditedId !== null
-      ? dispatch(
-          editSpec({
-            id: currentEditedId,
-            formData,
-          })
-        ).then((data) => {
-          console.log(data, "edit");
 
-          if (data?.payload?.success) {
-            dispatch(fetchAllSpecs());
-            setFormData(initialSpec);
-            setOpenForm(false);
-            setCurrentEditedId(null);
-          }
-        })
-      : dispatch(
-          addNewSpec({
-            ...formData,
-          })
-        ).then((data) => {
-          if (data?.payload?.success) {
-            dispatch(fetchAllSpecs());
-            setOpenForm(false);
-            setFormData(initialSpec);
-            toast({
-              title: "Thêm thông số thành công",
-            });
-          }
+    let processedForm = { ...formData };
+
+    // Chỉ xử lý allowedValues nếu specType là 'select'
+    if (formData.specType === "select") {
+      if (typeof formData.allowedValues === "string") {
+        processedForm.allowedValues = formData.allowedValues
+          .split("\n")
+          .map((v) => v.trim())
+          .filter(Boolean);
+      }
+    } else {
+      delete processedForm.allowedValues;
+    }
+
+    const action = currentEditedId !== null
+      ? editSpec({ id: currentEditedId, formData: processedForm })
+      : addNewSpec(processedForm);
+
+    dispatch(action).then((data) => {
+      if (data?.payload?.success) {
+        dispatch(fetchAllSpecs());
+        setOpenForm(false);
+        setFormData(initialSpec);
+        setCurrentEditedId(null);
+        toast({
+          title: currentEditedId ? "Đã cập nhật thông số" : "Thêm thông số thành công",
         });
+      }
+    });
   }
+
   function handleDelete(getCurrentSpecId) {
     dispatch(deleteSpec(getCurrentSpecId)).then((data) => {
       if (data?.payload?.success) {
@@ -81,73 +83,82 @@ function AdminSpecifications() {
       }
     });
   }
-  
+
+  function handleEdit(spec) {
+    setCurrentEditedId(spec._id);
+    setOpenForm(true);
+    setFormData({
+      specName: spec.specName || "",
+      specType: spec.specType || "",
+      specDescription: spec.specDescription || "",
+      specUnit: spec.specUnit || "",
+      allowedValues: Array.isArray(spec.allowedValues)
+        ? spec.allowedValues.join("\n")
+        : (spec.allowedValues || ""),
+    });
+  }
 
   useEffect(() => {
     dispatch(fetchAllSpecs());
   }, [dispatch]);
 
-  console.log(formData, "specList");
-
   return (
     <Fragment>
-    <h1 className="text-2xl font-bold">Thông số sản phẩm</h1>
-    <div className="mb-5 w-full flex justify-end">
-        <Button onClick={() => setOpenForm(true)}>
-        Thêm thông số sản phẩm
-        </Button>
-    </div>
-    <Table>
-  <TableHeader>
-    <TableRow>
-      <TableHead>Tên</TableHead>
-      <TableHead>Mô tả</TableHead>
-      <TableHead>Kiểu dữ liệu</TableHead>
-      <TableHead>Đơn vị</TableHead>
-      
-    </TableRow>
-  </TableHeader>
-  <TableBody>
-    {specificationList.map((specItem) => (
-      <AdminSpecTile
-        key={specItem._id}
-        specification={specItem}
-        setFormData={setFormData}
-        setOpenForm={setOpenForm}
-        setCurrentEditedId={setCurrentEditedId}
-        handleDelete={handleDelete}
-      />
-    ))}
-  </TableBody>
-</Table>
-    <Sheet
+      <h1 className="text-2xl font-bold">Thông số sản phẩm</h1>
+      <div className="mb-5 w-full flex justify-end">
+        <Button onClick={() => setOpenForm(true)}>Thêm thông số sản phẩm</Button>
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Tên</TableHead>
+            <TableHead>Mô tả</TableHead>
+            <TableHead>Kiểu dữ liệu</TableHead>
+            <TableHead>Đơn vị</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {specificationList.map((specItem) => (
+            <AdminSpecTile
+              key={specItem._id}
+              specification={specItem}
+              setFormData={setFormData}
+              setOpenForm={setOpenForm}
+              setCurrentEditedId={setCurrentEditedId}
+              handleDelete={handleDelete}
+              handleEdit={handleEdit}
+            />
+          ))}
+        </TableBody>
+      </Table>
+
+      <Sheet
         open={openForm}
         onOpenChange={() => {
-        setOpenForm(false);
-        setCurrentEditedId(null);
-        setFormData(initialSpec);
+          setOpenForm(false);
+          setFormData(initialSpec);
+          setCurrentEditedId(null);
         }}
-    >
+      >
         <SheetContent side="right" className="overflow-auto">
-        <SheetHeader>
+          <SheetHeader>
             <SheetTitle>
-            {currentEditedId !== null ? "Sửa thông số" : "Thêm thông số"}
+              {currentEditedId ? "Sửa thông số" : "Thêm thông số"}
             </SheetTitle>
-        </SheetHeader>
-        
-        <div className="py-6">
+          </SheetHeader>
+          <div className="py-6">
             <CommonForm
-            onSubmit={onSubmit}
-            formData={formData}
-            setFormData={setFormData}
-            buttonText={currentEditedId !== null ? "Sửa" : "Thêm"}
-            formControls={addSpecFormElements}
+              onSubmit={onSubmit}
+              formData={formData}
+              setFormData={setFormData}
+              buttonText={currentEditedId ? "Sửa" : "Thêm"}
+              formControls={addSpecFormElements}
             />
-        </div>
+          </div>
         </SheetContent>
-    </Sheet>
+      </Sheet>
     </Fragment>
-    );
+  );
 }
 
 export default AdminSpecifications;

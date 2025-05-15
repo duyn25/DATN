@@ -17,13 +17,13 @@ export default function MenuItems() {
   };
 
   return (
-    <div className="flex w-[250px] border rounded-xl shadow-xl bg-gray-100">
-      <ul className="w-full">
+    <div className="w-[250px] bg-white rounded-md shadow-lg border border-gray-200">
+      <ul className="divide-y divide-gray-200">
         {categoryList.map((cat) => (
           <li
             key={cat._id}
             onClick={() => handleCategoryClick(cat._id)}
-            className="p-4 text-sm cursor-pointer hover:text-blue-400 hover:bg-white"
+            className="px-4 py-3 text-sm text-gray-700 cursor-pointer hover:bg-gray-100 hover:text-primary transition-all"
           >
             {cat.categoryName}
           </li>

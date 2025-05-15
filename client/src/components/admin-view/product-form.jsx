@@ -18,25 +18,37 @@ function ProductForm({
   buttonText,
   isBtnDisabled,
 }) {
+  // Trả về value nếu là field specification
+  const getSpecValue = (fullName) => {
+    const specId = fullName.split(".")[1];
+    return formData.specifications?.[specId] || "";
+  };
+
+  const handleChange = (control, e) => {
+    const val = e?.target?.value ?? e;
+
+    // Nếu là thông số kỹ thuật
+    if (control.name.startsWith("specifications.")) {
+      const specId = control.name.split(".")[1];
+      setFormData({
+        ...formData,
+        specifications: {
+          ...formData.specifications,
+          [specId]: val,
+        },
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [control.name]: val,
+      });
+    }
+  };
+
   const renderControl = (control) => {
     const value = control.name.startsWith("specifications.")
       ? getSpecValue(control.name)
       : formData[control.name] || "";
-
-    const handleChange = (e) => {
-      const val = e?.target?.value ?? e;
-      if (control.name.startsWith("specifications.")) {
-        const specId = control.name.split(".")[1];
-        const others =
-          formData.specifications?.filter((s) => s.specId !== specId) || [];
-        setFormData({
-          ...formData,
-          specifications: [...others, { specId, value: val }],
-        });
-      } else {
-        setFormData({ ...formData, [control.name]: val });
-      }
-    };
 
     switch (control.componentType) {
       case "input":
@@ -45,7 +57,7 @@ function ProductForm({
             type={control.type || "text"}
             placeholder={control.placeholder}
             value={value}
-            onChange={handleChange}
+            onChange={(e) => handleChange(control, e)}
           />
         );
       case "textarea":
@@ -53,12 +65,12 @@ function ProductForm({
           <Textarea
             placeholder={control.placeholder}
             value={value}
-            onChange={handleChange}
+            onChange={(e) => handleChange(control, e)}
           />
         );
       case "select":
         return (
-          <Select value={value} onValueChange={handleChange}>
+          <Select value={value} onValueChange={(val) => handleChange(control, val)}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder={control.label} />
             </SelectTrigger>
@@ -77,17 +89,10 @@ function ProductForm({
             type="text"
             placeholder={control.placeholder}
             value={value}
-            onChange={handleChange}
+            onChange={(e) => handleChange(control, e)}
           />
         );
     }
-  };
-
-  const getSpecValue = (fullName) => {
-    const specId = fullName.split(".")[1];
-    return (
-      formData.specifications?.find((s) => s.specId === specId)?.value || ""
-    );
   };
 
   return (

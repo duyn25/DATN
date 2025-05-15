@@ -9,12 +9,14 @@ import { useDispatch, useSelector } from "react-redux";
 function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  const dispatch =useDispatch();
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (user?.id) {
       dispatch(fetchCartItems(user.id));
     }
   }, [dispatch, user]);
+
   const totalCartAmount =
     cartItems && cartItems.length > 0
       ? cartItems.reduce(
@@ -27,35 +29,43 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
           0
         )
       : 0;
-    return (
-    
-      <SheetContent className="sm:max-w-md">
-        <SheetHeader>
-          <SheetTitle>Giỏ hàng của bạn</SheetTitle>
-        </SheetHeader>
-        <div className="mt-8 space-y-4">
-          {cartItems && cartItems.length > 0
-            ? cartItems.map((item) => <UserCartItemsContent cartItem={item} />)
-            : null}
-        </div>
-        <div className="mt-8 space-y-4">
-          <div className="flex justify-between">
-            <span className="font-bold">Tổng tiền: </span>
-            <span className="font-bold">{totalCartAmount.toLocaleString()} đ</span>
+
+  return (
+    <SheetContent className="sm:max-w-md">
+      <SheetHeader>
+        <SheetTitle>Giỏ hàng của bạn</SheetTitle>
+      </SheetHeader>
+
+      <div className="mt-8 space-y-4">
+        {cartItems && cartItems.length > 0 ? (
+          cartItems.map((item) => (
+            <UserCartItemsContent key={item._id} cartItem={item} />
+          ))
+        ) : (
+          <div className="text-center text-gray-500 font-medium">
+            Giỏ hàng của bạn đang trống.
           </div>
+        )}
+      </div>
+
+      <div className="mt-8 space-y-4">
+        <div className="flex justify-between">
+          <span className="font-bold">Tổng tiền:</span>
+          <span className="font-bold">{totalCartAmount.toLocaleString()} đ</span>
         </div>
-        <Button
-          onClick={() => {
-            navigate("/shop/checkout");
-          }}
-          className="w-full mt-6 bg-red-500 hover:bg-red-700"
-        >
-          Xác nhận đơn
-        </Button>
-      </SheetContent>
-    );
-  }
- 
+      </div>
+
+      <Button
+        onClick={() => navigate("/shop/checkout")}
+        className="w-full mt-6 bg-red-500 hover:bg-red-700"
+        disabled={cartItems.length === 0}
+      >
+        Xác nhận đơn
+      </Button>
+    </SheetContent>
+  );
+}
+
 
 
 export default UserCartWrapper;

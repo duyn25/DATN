@@ -86,7 +86,6 @@ function ProductDetailPage() {
   if (!productDetails) {
     return <div className="p-10 text-center">Đang tải sản phẩm...</div>;
   }
-console.log("productdetail",productDetails)
   const {
     image,
     productName,
