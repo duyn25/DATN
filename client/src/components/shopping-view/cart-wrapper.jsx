@@ -38,14 +38,18 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
 
       <div className="mt-8 space-y-4">
         {cartItems && cartItems.length > 0 ? (
-          cartItems.map((item) => (
-            <UserCartItemsContent key={item._id} cartItem={item} />
+          cartItems.map((item, idx) => (
+            <UserCartItemsContent
+              key={item.productId || item._id || idx}
+              cartItem={item}
+            />
           ))
         ) : (
           <div className="text-center text-gray-500 font-medium">
             Giỏ hàng của bạn đang trống.
           </div>
         )}
+
       </div>
 
       <div className="mt-8 space-y-4">
