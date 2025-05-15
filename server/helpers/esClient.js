@@ -7,7 +7,7 @@ const client = new Client({
     password: '+Joh*TBL_A5vN7xnm7CD'
   },
   tls: {
-    rejectUnauthorized: false // Chỉ dùng để DEV/test local!
+    rejectUnauthorized: false 
   }
 });
 

@@ -31,8 +31,10 @@ const initialFormData = {
   salePrice: "",
   totalStock: "",
   averageReview: 0,
-  specifications: {}, 
+  specifications: {},
 };
+
+const PRODUCTS_PER_PAGE = 10; 
 
 function AdminProducts() {
   const [openCreateProductsDialog, setOpenCreateProductsDialog] = useState(false);
@@ -43,6 +45,7 @@ function AdminProducts() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
   const [imageLoadingState, setImageLoadingState] = useState(false);
   const [currentEditedId, setCurrentEditedId] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_PAGE);
 
   const { productList } = useSelector((state) => state.adminProduct);
   const dispatch = useDispatch();
@@ -55,19 +58,22 @@ function AdminProducts() {
     }
   }, [dispatch]);
 
- useEffect(() => {
-  if (formData.categoryId) {
-    axios
-      .get(`http://localhost:5000/api/shop/product/filters?categoryId=${formData.categoryId}`)
-      .then(res => {
-        setSelectedCategorySpecs(res.data.data); 
-      })
-      .catch(err => console.error("Lỗi khi tải thông số", err));
-  } else {
-    setSelectedCategorySpecs([]);
-  }
-}, [formData.categoryId]);
+  useEffect(() => {
+    if (formData.categoryId) {
+      axios
+        .get(`http://localhost:5000/api/shop/product/filters?categoryId=${formData.categoryId}`)
+        .then(res => {
+          setSelectedCategorySpecs(res.data.data);
+        })
+        .catch(err => console.error("Lỗi khi tải thông số", err));
+    } else {
+      setSelectedCategorySpecs([]);
+    }
+  }, [formData.categoryId]);
 
+  useEffect(() => {
+    setVisibleCount(PRODUCTS_PER_PAGE);
+  }, [productList]);
 
   const onSubmit = (event) => {
     event.preventDefault();
@@ -119,6 +125,10 @@ function AdminProducts() {
     setUploadedImageUrl("");
   };
 
+  const handleShowMore = () => {
+    setVisibleCount((prev) => prev + PRODUCTS_PER_PAGE);
+  };
+
   return (
     <Fragment>
       <h1 className="text-2xl font-bold">Tất cả sản phẩm</h1>
@@ -129,23 +139,31 @@ function AdminProducts() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
-        {productList?.length > 0 &&
-          productList.map((productItem) => (
-            <AdminProductTile
-              key={productItem._id}
-              setFormData={setFormData}
-              setOpenCreateProductsDialog={setOpenCreateProductsDialog}
-              setCurrentEditedId={setCurrentEditedId}
-              product={productItem}
-              handleDelete={handleDelete}
-            />
-          ))}
+        {productList?.slice(0, visibleCount).map((productItem) => (
+          <AdminProductTile
+            key={productItem._id}
+            setFormData={setFormData}
+            setOpenCreateProductsDialog={setOpenCreateProductsDialog}
+            setCurrentEditedId={setCurrentEditedId}
+            product={productItem}
+            handleDelete={handleDelete}
+          />
+        ))}
       </div>
 
-      <Sheet
-        open={openCreateProductsDialog}
-        onOpenChange={resetForm}
-      >
+      {/* Nút Xem thêm */}
+      {visibleCount < (productList?.length || 0) && (
+        <div className="flex justify-center my-6">
+          <Button
+            onClick={handleShowMore}
+            className="bg-white text-primary px-8 py-2 rounded-full  shadow font-bold"
+          >
+            Xem thêm
+          </Button>
+        </div>
+      )}
+
+      <Sheet open={openCreateProductsDialog} onOpenChange={resetForm}>
         <SheetContent side="right" className="overflow-auto">
           <SheetHeader>
             <SheetTitle>

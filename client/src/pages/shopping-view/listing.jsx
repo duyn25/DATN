@@ -15,6 +15,8 @@ import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { sortOptions } from "@/config";
 
+const PRODUCTS_PER_PAGE = 10;
+
 export function createSearchParamsHelper(filterParams) {
   const queryParams = [];
 
@@ -36,6 +38,8 @@ function ShoppingListing() {
   const [filters, setFilters] = useState({});
   const [searchParams, setSearchParams] = useSearchParams();
   const [sort, setSort] = useState("price-lowtohigh");
+  const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_PAGE);
+
   const categoryId = searchParams.get("categoryId");
 
   // Gán categoryId từ URL (nếu có) ngay khi load lần đầu
@@ -44,6 +48,11 @@ function ShoppingListing() {
       setFilters((prev) => ({ ...prev, categoryId }));
     }
   }, [categoryId]);
+
+  // Reset số sản phẩm khi filter/sort thay đổi
+  useEffect(() => {
+    setVisibleCount(PRODUCTS_PER_PAGE);
+  }, [filters, sort]);
 
   // Cập nhật URL mỗi khi filters thay đổi
   useEffect(() => {
@@ -65,7 +74,7 @@ function ShoppingListing() {
       const updated = { ...prev };
 
       if (sectionId === "categoryId") {
-        updated[sectionId] = option; 
+        updated[sectionId] = option;
       } else {
         if (!updated[sectionId]) {
           updated[sectionId] = [option];
@@ -87,13 +96,20 @@ function ShoppingListing() {
     navigate(`/shop/product/${productId}`);
   };
 
+  // "Xem thêm" sản phẩm
+  const handleShowMore = () => {
+    setVisibleCount((prev) => prev + PRODUCTS_PER_PAGE);
+  };
+
+  // Render
   return (
     <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-6 p-4 md:p-6">
       <ProductFilter filters={filters} handleFilter={handleFilter} />
+
       <div className="bg-background w-full rounded-lg shadow-sm">
-        <div className="p-4 border-b flex items-center justify-between">
+        <div className="p-4 border-b flex flex-col md:flex-row items-center justify-between gap-2">
           <h2 className="text-lg font-extrabold">
-            Tìm thấy {productList?.length} sản phẩm
+            Tìm thấy {productList?.length || 0} sản phẩm
           </h2>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -102,7 +118,7 @@ function ShoppingListing() {
                 <span>Sắp xếp</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[300px]">
+            <DropdownMenuContent align="end" className="w-[220px]">
               <DropdownMenuRadioGroup value={sort} onValueChange={handleSort}>
                 {sortOptions.map((sortItem) => (
                   <DropdownMenuRadioItem key={sortItem.id} value={sortItem.id}>
@@ -114,15 +130,35 @@ function ShoppingListing() {
           </DropdownMenu>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {productList?.map((product) => (
-            <ShoppingProductTile
-              key={product._id}
-              product={product}
-              handleGetProductDetails={handleGetProductDetails}
-            />
-          ))}
-        </div>
+        {/* List sản phẩm */}
+        {productList?.length > 0 ? (
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
+              {productList.slice(0, visibleCount).map((product) => (
+                <ShoppingProductTile
+                  key={product._id}
+                  product={product}
+                  handleGetProductDetails={handleGetProductDetails}
+                />
+              ))}
+            </div>
+            {/* Nút Xem thêm */}
+            {visibleCount < productList.length && (
+              <div className="flex justify-center my-6">
+                <Button
+                  onClick={handleShowMore}
+                  className="bg-[#d9503f] text-white px-8 py-2 rounded-full hover:bg-[#b02e1e] shadow font-bold"
+                >
+                  Xem thêm
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="p-8 text-center text-lg text-gray-500 font-semibold">
+            Không tìm thấy sản phẩm phù hợp
+          </div>
+        )}
       </div>
     </div>
   );

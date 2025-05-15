@@ -1,4 +1,5 @@
 const { imageUploadUtil } = require("../../helpers/cloudinary");
+const esClient = require("../../helpers/esClient");
 const Product = require("../../models/Product");
 const ProductSpecification = require("../../models/productSpecification");
 const Category = require("../../models/categoryList");
@@ -23,7 +24,7 @@ const handleImageUpload = async (req, res) => {
   }
 };
 
-// Thêm sản phẩm
+// Thêm sản phẩm + index ES
 const addProduct = async (req, res) => {
   try {
     const {
@@ -58,7 +59,7 @@ const addProduct = async (req, res) => {
 
     const savedProduct = await newProduct.save();
 
-    // Xử lý specifications dạng object { specId: value }
+    // Xử lý specifications
     const specArray = specifications && typeof specifications === "object" && !Array.isArray(specifications)
       ? Object.entries(specifications).map(([specId, value]) => ({ specId, value }))
       : [];
@@ -70,6 +71,25 @@ const addProduct = async (req, res) => {
         value: spec.value,
       });
     }
+
+    // ----> INDEX VÀO ES
+    await esClient.index({
+      index: "products",
+      id: savedProduct._id.toString(),
+      document: {
+        productId: savedProduct._id.toString(),
+        productName,
+        description,
+        categoryId,
+        brand,
+        price,
+        salePrice,
+        image,
+        totalStock,
+        averageReview,
+        // Bạn có thể thêm các trường khác nếu muốn search/filter
+      }
+    });
 
     res.status(201).json({
       success: true,
@@ -84,7 +104,7 @@ const addProduct = async (req, res) => {
   }
 };
 
-// Sửa sản phẩm
+// Sửa sản phẩm + update ES
 const editProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -120,14 +140,13 @@ const editProduct = async (req, res) => {
 
     await findProduct.save();
 
-    // Xóa cũ
+    // Xóa specifications cũ
     await ProductSpecification.deleteMany({ productId: id });
 
-    // Ghi mới
+    // Thêm lại specifications mới
     const specArray = specifications && typeof specifications === "object" && !Array.isArray(specifications)
       ? Object.entries(specifications).map(([specId, value]) => ({ specId, value }))
       : [];
-
     for (const spec of specArray) {
       await ProductSpecification.create({
         productId: id,
@@ -135,6 +154,23 @@ const editProduct = async (req, res) => {
         value: spec.value,
       });
     }
+
+    // ----> UPDATE ES
+    await esClient.update({
+      index: "products",
+      id: id.toString(),
+      doc: {
+        productName: findProduct.productName,
+        description: findProduct.description,
+        categoryId: findProduct.categoryId,
+        brand: findProduct.brand,
+        price: findProduct.price,
+        salePrice: findProduct.salePrice,
+        image: findProduct.image,
+        totalStock: findProduct.totalStock,
+        averageReview: findProduct.averageReview,
+      }
+    });
 
     res.status(200).json({
       success: true,
@@ -182,7 +218,7 @@ const fetchAllProducts = async (req, res) => {
   }
 };
 
-// Xóa sản phẩm
+// Xóa sản phẩm + xóa khỏi ES
 const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -195,6 +231,12 @@ const deleteProduct = async (req, res) => {
       });
 
     await ProductSpecification.deleteMany({ productId: id });
+
+    // ----> XÓA TRÊN ES
+    await esClient.delete({
+      index: "products",
+      id: id.toString()
+    });
 
     res.status(200).json({
       success: true,

@@ -3,7 +3,7 @@ const Product = require("../models/Product");
 const esClient = require("./esClient");
 
 async function syncProducts() {
-  await mongoose.connect('mongodb+srv://ngduytttb:ngduytttb@cluster0.mtfljp9.mongodb.net/'); // chỉnh DB
+  await mongoose.connect('mongodb+srv://ngduytttb:ngduytttb@cluster0.mtfljp9.mongodb.net/'); 
 
   const products = await Product.find({});
   for (const product of products) {

@@ -84,18 +84,18 @@ export const addSpecFormElements = [
 
 export const addressFormControls = [
     {
-      label: "Địa chỉ",
+      label: "Địa chỉ cụ thể",
       name: "address",
       componentType: "input",
       type: "text",
       placeholder: "Nhập địa chỉ",
     },
     {
-      label: "Thành phố",
+      label: "Tỉnh/Thành phố",
       name: "city",
       componentType: "input",
       type: "text",
-      placeholder: "Nhập thành phố",
+      placeholder: "Nhập tỉnh/thành phố",
     },
     {
       label: "SĐT",

@@ -35,17 +35,17 @@ function AdminProductTile({
           />
         </div>
         <CardContent>
-          <h2 className="text-xl font-bold mb-2 mt-2">{product?.productName}</h2>
+          <h2 className="text-xl  mb-2 mt-2">{product?.productName}</h2>
           <div className="flex justify-between items-center mb-2">
             <span
               className={`${
                 product?.salePrice > 0 ? "line-through" : ""
-              } text-lg font-semibold text-primary`}
+              } text-lg  text-primary`}
             >
               {product?.price.toLocaleString()} đ
             </span>
             {product?.salePrice > 0 ? (
-              <span className="text-lg font-bold">
+              <span className="text-lg ">
                 {product?.salePrice.toLocaleString()} đ
               </span>
             ) : null}

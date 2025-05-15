@@ -193,7 +193,39 @@ const getFilterFieldsByCategory = async (req, res) => {
     res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };
+const homeProducts = async (req, res) => {
+  try {
+    const topSelling = await Product.find({})
+      .sort({ sold: -1 })
+      .limit(5);
 
+    const newProducts = await Product.find({})
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    const saleProducts = await Product.aggregate([
+      { $match: { salePrice: { $gt: 0 } } },
+      { $addFields: { salePercent: { $subtract: [100, { $multiply: [{ $divide: ["$salePrice", "$price"] }, 100] }] } } },
+      { $sort: { salePercent: -1 } },
+      { $limit: 5 }
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        topSelling,
+        newProducts,
+        hotSales: saleProducts
+      }
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
 const getCategories = async (req, res) => {
   try {
     const categories = await Category.find();
@@ -214,5 +246,6 @@ module.exports = {
   getFilteredProducts,
   getFilterFieldsByCategory,
   getProductDetails,
-  getCategories
+  getCategories,
+  homeProducts,
 };
