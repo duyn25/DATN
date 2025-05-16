@@ -17,14 +17,13 @@ export default function MenuItems() {
   };
 
   return (
-    <div className="w-[250px] bg-white shadow-lg border border-gray-200">
+    <div className="w-[250px] bg-white rounded-md shadow-lg border border-gray-200">
       <ul className="divide-y divide-gray-200">
         {categoryList.map((cat) => (
           <li
             key={cat._id}
             onClick={() => handleCategoryClick(cat._id)}
-            className="px-4 py-3 text-sm text-gray-700 cursor-pointer hover:bg-[#fde3df] hover:text-[#d9503f] font-medium transition-all rounded-none"
-            style={{ borderRadius: 0 }}
+            className="px-4 py-3 text-sm text-gray-700 cursor-pointer hover:bg-gray-100 hover:text-primary transition-all"
           >
             {cat.categoryName}
           </li>

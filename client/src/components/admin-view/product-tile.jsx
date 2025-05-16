@@ -31,7 +31,7 @@ function AdminProductTile({
           <img
             src={product?.image}
             alt={product?.title}
-            className="object-cover rounded-t-lg"
+            className="w-full h-[200px] object-cover rounded-t-lg"
           />
         </div>
         <CardContent>
@@ -45,7 +45,7 @@ function AdminProductTile({
               {product?.price.toLocaleString()} đ
             </span>
             {product?.salePrice > 0 ? (
-              <span className="text-lg ">
+              <span className="text-lg font-bold">
                 {product?.salePrice.toLocaleString()} đ
               </span>
             ) : null}

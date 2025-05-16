@@ -4,7 +4,6 @@ const Product = require("../../models/Product");
 const ProductSpecification = require("../../models/productSpecification");
 const Category = require("../../models/categoryList");
 
-// Upload ảnh
 const handleImageUpload = async (req, res) => {
   try {
     const b64 = Buffer.from(req.file.buffer).toString("base64");
@@ -24,7 +23,6 @@ const handleImageUpload = async (req, res) => {
   }
 };
 
-// Thêm sản phẩm + index ES
 const addProduct = async (req, res) => {
   try {
     const {
@@ -59,20 +57,27 @@ const addProduct = async (req, res) => {
 
     const savedProduct = await newProduct.save();
 
-    // Xử lý specifications
-    const specArray = specifications && typeof specifications === "object" && !Array.isArray(specifications)
-      ? Object.entries(specifications).map(([specId, value]) => ({ specId, value }))
-      : [];
-
-    for (const spec of specArray) {
-      await ProductSpecification.create({
-        productId: savedProduct._id,
-        specId: spec.specId,
-        value: spec.value,
-      });
+    // Lưu specifications: hỗ trợ cả dạng array [{specId, value}] và object {specId: value}
+    if (Array.isArray(specifications)) {
+      for (const spec of specifications) {
+        if (spec.specId && typeof spec.value !== "undefined") {
+          await ProductSpecification.create({
+            productId: savedProduct._id,
+            specId: spec.specId,
+            value: spec.value,
+          });
+        }
+      }
+    } else if (typeof specifications === "object" && specifications !== null) {
+      for (const [specId, value] of Object.entries(specifications)) {
+        await ProductSpecification.create({
+          productId: savedProduct._id,
+          specId,
+          value,
+        });
+      }
     }
 
-    // ----> INDEX VÀO ES
     await esClient.index({
       index: "products",
       id: savedProduct._id.toString(),
@@ -87,7 +92,6 @@ const addProduct = async (req, res) => {
         image,
         totalStock,
         averageReview,
-        // Bạn có thể thêm các trường khác nếu muốn search/filter
       }
     });
 
@@ -104,7 +108,7 @@ const addProduct = async (req, res) => {
   }
 };
 
-// Sửa sản phẩm + update ES
+
 const editProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -143,19 +147,27 @@ const editProduct = async (req, res) => {
     // Xóa specifications cũ
     await ProductSpecification.deleteMany({ productId: id });
 
-    // Thêm lại specifications mới
-    const specArray = specifications && typeof specifications === "object" && !Array.isArray(specifications)
-      ? Object.entries(specifications).map(([specId, value]) => ({ specId, value }))
-      : [];
-    for (const spec of specArray) {
-      await ProductSpecification.create({
-        productId: id,
-        specId: spec.specId,
-        value: spec.value,
-      });
+    // Lưu specifications mới (array hoặc object)
+    if (Array.isArray(specifications)) {
+      for (const spec of specifications) {
+        if (spec.specId && typeof spec.value !== "undefined") {
+          await ProductSpecification.create({
+            productId: id,
+            specId: spec.specId,
+            value: spec.value,
+          });
+        }
+      }
+    } else if (typeof specifications === "object" && specifications !== null) {
+      for (const [specId, value] of Object.entries(specifications)) {
+        await ProductSpecification.create({
+          productId: id,
+          specId,
+          value,
+        });
+      }
     }
 
-    // ----> UPDATE ES
     await esClient.update({
       index: "products",
       id: id.toString(),
@@ -185,7 +197,7 @@ const editProduct = async (req, res) => {
   }
 };
 
-// Lấy tất cả sản phẩm (bao gồm specs)
+
 const fetchAllProducts = async (req, res) => {
   try {
     const listOfProducts = await Product.find({});
@@ -218,7 +230,6 @@ const fetchAllProducts = async (req, res) => {
   }
 };
 
-// Xóa sản phẩm + xóa khỏi ES
 const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -232,7 +243,6 @@ const deleteProduct = async (req, res) => {
 
     await ProductSpecification.deleteMany({ productId: id });
 
-    // ----> XÓA TRÊN ES
     await esClient.delete({
       index: "products",
       id: id.toString()

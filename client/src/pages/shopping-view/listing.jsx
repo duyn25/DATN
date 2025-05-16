@@ -32,40 +32,50 @@ export function createSearchParamsHelper(filterParams) {
 }
 
 function ShoppingListing() {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { productList } = useSelector((state) => state.shopProduct);
-  const [filters, setFilters] = useState({});
   const [searchParams, setSearchParams] = useSearchParams();
+
   const [sort, setSort] = useState("price-lowtohigh");
   const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_PAGE);
 
-  const categoryId = searchParams.get("categoryId");
+  // ✅ Khởi tạo filters với categoryId từ URL (nếu có)
+  const [filters, setFilters] = useState(() => {
+    const categoryId = searchParams.get("categoryId");
+    return categoryId ? { categoryId } : {};
+  });
 
-  // Gán categoryId từ URL (nếu có) ngay khi load lần đầu
+  // ✅ Cập nhật categoryId nếu URL thay đổi (không reset filter khác)
   useEffect(() => {
-    if (categoryId) {
-      setFilters((prev) => ({ ...prev, categoryId }));
+    const newCategoryId = searchParams.get("categoryId");
+    if (newCategoryId) {
+      setFilters((prev) => ({
+        ...prev,
+        categoryId: newCategoryId,
+      }));
     }
-  }, [categoryId]);
+  }, [searchParams]);
 
-  // Reset số sản phẩm khi filter/sort thay đổi
+  // ✅ Reset số lượng sản phẩm hiển thị mỗi khi filter/sort đổi
   useEffect(() => {
     setVisibleCount(PRODUCTS_PER_PAGE);
   }, [filters, sort]);
 
-  // Cập nhật URL mỗi khi filters thay đổi
+  // ✅ Gọi API khi filters hoặc sort thay đổi
+  useEffect(() => {
+    if (filters && Object.keys(filters).length > 0) {
+      dispatch(fetchAllFilteredProducts({ filterParams: filters, sortParams: sort }));
+    }
+  }, [filters, sort, dispatch]);
+
+  // ✅ Đồng bộ URL mỗi khi filters thay đổi
   useEffect(() => {
     if (filters && Object.keys(filters).length > 0) {
       const queryString = createSearchParamsHelper(filters);
       setSearchParams(new URLSearchParams(queryString));
     }
   }, [filters]);
-
-  // Gọi API khi filters hoặc sort thay đổi
-  useEffect(() => {
-    dispatch(fetchAllFilteredProducts({ filterParams: filters, sortParams: sort }));
-  }, [filters, sort, dispatch]);
 
   const handleSort = (value) => setSort(value);
 
@@ -96,12 +106,10 @@ function ShoppingListing() {
     navigate(`/shop/product/${productId}`);
   };
 
-  // "Xem thêm" sản phẩm
   const handleShowMore = () => {
     setVisibleCount((prev) => prev + PRODUCTS_PER_PAGE);
   };
 
-  // Render
   return (
     <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-6 p-4 md:p-6">
       <ProductFilter filters={filters} handleFilter={handleFilter} />
@@ -130,7 +138,7 @@ function ShoppingListing() {
           </DropdownMenu>
         </div>
 
-        {/* List sản phẩm */}
+        {/* Danh sách sản phẩm */}
         {productList?.length > 0 ? (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
@@ -142,7 +150,6 @@ function ShoppingListing() {
                 />
               ))}
             </div>
-            {/* Nút Xem thêm */}
             {visibleCount < productList.length && (
               <div className="flex justify-center my-6">
                 <Button

@@ -57,33 +57,68 @@ const getFilteredProducts = async (req, res) => {
         parsedSpecs = {};
       }
 
-      const validSpecConditions = Object.entries(parsedSpecs)
-        .filter(([specId, values]) =>
-          /^[a-fA-F0-9]{24}$/.test(specId) &&
-          Array.isArray(values) &&
-          values.length > 0
-        )
-        .flatMap(([specId, ranges]) =>
-          ranges.map((range) => {
-            if (typeof range === "string" && range.includes("-")) {
-              const [min, max] = range.split("-").map(Number);
-              return {
-                $expr: {
-                  $and: [
-                    { $eq: ["$specId", { $toObjectId: specId }] },
-                    { $gte: [{ $toDouble: "$value" }, min] },
-                    { $lte: [{ $toDouble: "$value" }, max] },
-                  ],
-                },
-              };
-            } else {
-              return {
-                specId,
-                value: range,
-              };
-            }
-          })
-        );
+     
+const numericSpecIds = [
+  "681a8098608d859da8b3c85c", // Dung tích
+  "680ad9e2bf49fe283ffc91ec", // Công suất
+];
+
+const validSpecConditions = Object.entries(parsedSpecs)
+  .filter(([specId, values]) =>
+    /^[a-fA-F0-9]{24}$/.test(specId) &&
+    Array.isArray(values) &&
+    values.length > 0
+  )
+  .flatMap(([specId, values]) =>
+    values.map((val) => {
+      const isNumericRange = /^\d+(\.\d+)?\s*-\s*\d+(\.\d+)?$/.test(val);
+      const [min, max] = isNumericRange ? val.split("-").map(Number) : [];
+
+      // Nếu spec là dạng số + value là khoảng: lọc theo số
+      if (numericSpecIds.includes(specId) && isNumericRange) {
+        return {
+          $expr: {
+            $and: [
+              { $eq: ["$specId", { $toObjectId: specId }] },
+              {
+                $gte: [
+                  {
+                    $convert: {
+                      input: "$value",
+                      to: "double",
+                      onError: null,
+                      onNull: null,
+                    },
+                  },
+                  min,
+                ],
+              },
+              {
+                $lte: [
+                  {
+                    $convert: {
+                      input: "$value",
+                      to: "double",
+                      onError: null,
+                      onNull: null,
+                    },
+                  },
+                  max,
+                ],
+              },
+            ],
+          },
+        };
+      }
+
+      // Còn lại là kiểu select: lọc đúng chuỗi
+      return {
+        specId,
+        value: val,
+      };
+    })
+  );
+
 
       if (validSpecConditions.length > 0 && products.length > 0) {
         const productIds = products.map((p) => p._id);
@@ -195,6 +230,7 @@ const getFilterFieldsByCategory = async (req, res) => {
 };
 const homeProducts = async (req, res) => {
   try {
+    // 1. Top bán chạy
     const topSelling = await Product.find({})
       .sort({ sold: -1 })
       .limit(5);

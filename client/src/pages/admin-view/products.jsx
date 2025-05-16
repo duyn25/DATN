@@ -31,10 +31,8 @@ const initialFormData = {
   salePrice: "",
   totalStock: "",
   averageReview: 0,
-  specifications: {},
+  specifications: {}, 
 };
-
-const PRODUCTS_PER_PAGE = 10; 
 
 function AdminProducts() {
   const [openCreateProductsDialog, setOpenCreateProductsDialog] = useState(false);
@@ -45,12 +43,12 @@ function AdminProducts() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
   const [imageLoadingState, setImageLoadingState] = useState(false);
   const [currentEditedId, setCurrentEditedId] = useState(null);
-  const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_PAGE);
 
   const { productList } = useSelector((state) => state.adminProduct);
   const dispatch = useDispatch();
   const { toast } = useToast();
 
+  // Lấy danh mục và sản phẩm
   useEffect(() => {
     dispatch(fetchAllProducts());
     if (categoryList.length === 0) {
@@ -58,12 +56,13 @@ function AdminProducts() {
     }
   }, [dispatch]);
 
+  // Lấy thông số kỹ thuật khi chọn/đổi danh mục
   useEffect(() => {
     if (formData.categoryId) {
       axios
         .get(`http://localhost:5000/api/shop/product/filters?categoryId=${formData.categoryId}`)
         .then(res => {
-          setSelectedCategorySpecs(res.data.data);
+          setSelectedCategorySpecs(res.data.data); 
         })
         .catch(err => console.error("Lỗi khi tải thông số", err));
     } else {
@@ -71,9 +70,26 @@ function AdminProducts() {
     }
   }, [formData.categoryId]);
 
-  useEffect(() => {
-    setVisibleCount(PRODUCTS_PER_PAGE);
-  }, [productList]);
+  // Khi bấm "Sửa", cập nhật đầy đủ specs và image
+  const handleEditProduct = (product) => {
+    setOpenCreateProductsDialog(true);
+    setCurrentEditedId(product?._id);
+
+    // Đưa specifications về dạng object {specId: value}
+    const specsObj = {};
+    product.specifications?.forEach((spec) => {
+      const id = spec.specId?._id || spec.specId || spec._id;
+      specsObj[id] = spec.value;
+    });
+
+    setFormData({
+      ...product,
+      specifications: specsObj,
+    });
+
+    setUploadedImageUrl(product.image || "");
+    setImageFile(null);
+  };
 
   const onSubmit = (event) => {
     event.preventDefault();
@@ -123,10 +139,7 @@ function AdminProducts() {
     setFormData(initialFormData);
     setImageFile(null);
     setUploadedImageUrl("");
-  };
-
-  const handleShowMore = () => {
-    setVisibleCount((prev) => prev + PRODUCTS_PER_PAGE);
+    setSelectedCategorySpecs([]);
   };
 
   return (
@@ -139,31 +152,26 @@ function AdminProducts() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
-        {productList?.slice(0, visibleCount).map((productItem) => (
-          <AdminProductTile
-            key={productItem._id}
-            setFormData={setFormData}
-            setOpenCreateProductsDialog={setOpenCreateProductsDialog}
-            setCurrentEditedId={setCurrentEditedId}
-            product={productItem}
-            handleDelete={handleDelete}
-          />
-        ))}
+        {productList?.length > 0 &&
+          productList.map((productItem) => (
+            <AdminProductTile
+              key={productItem._id}
+              setFormData={setFormData}
+              setOpenCreateProductsDialog={setOpenCreateProductsDialog}
+              setCurrentEditedId={setCurrentEditedId}
+              setUploadedImageUrl={setUploadedImageUrl}
+              setImageFile={setImageFile}
+              product={productItem}
+              handleEdit={() => handleEditProduct(productItem)}
+              handleDelete={handleDelete}
+            />
+          ))}
       </div>
 
-      {/* Nút Xem thêm */}
-      {visibleCount < (productList?.length || 0) && (
-        <div className="flex justify-center my-6">
-          <Button
-            onClick={handleShowMore}
-            className="bg-white text-primary px-8 py-2 rounded-full  shadow font-bold"
-          >
-            Xem thêm
-          </Button>
-        </div>
-      )}
-
-      <Sheet open={openCreateProductsDialog} onOpenChange={resetForm}>
+      <Sheet
+        open={openCreateProductsDialog}
+        onOpenChange={resetForm}
+      >
         <SheetContent side="right" className="overflow-auto">
           <SheetHeader>
             <SheetTitle>

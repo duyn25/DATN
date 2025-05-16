@@ -10,14 +10,15 @@ function ShoppingProductTile({
   
   return (
 
-      <Card>
+      <Card className="h-full flex flex-col justify-between">
       <div onClick={() => handleGetProductDetails(product?._id)}> 
         <div className="relative">
           <img
             src={product?.image}
             alt={product?.productName}
-            className="object-cover rounded-t-lg"
+            className="w-60 h-60 object-cover rounded-t-lg"
           />
+
           {product?.totalStock === 0 ? (
             <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
               Hết hàng

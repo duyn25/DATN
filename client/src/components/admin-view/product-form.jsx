@@ -18,7 +18,7 @@ function ProductForm({
   buttonText,
   isBtnDisabled,
 }) {
-  // Trả về value nếu là field specification
+  // Lấy value cho specs
   const getSpecValue = (fullName) => {
     const specId = fullName.split(".")[1];
     return formData.specifications?.[specId] || "";
@@ -27,21 +27,20 @@ function ProductForm({
   const handleChange = (control, e) => {
     const val = e?.target?.value ?? e;
 
-    // Nếu là thông số kỹ thuật
     if (control.name.startsWith("specifications.")) {
       const specId = control.name.split(".")[1];
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         specifications: {
-          ...formData.specifications,
+          ...prev.specifications,
           [specId]: val,
         },
-      });
+      }));
     } else {
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         [control.name]: val,
-      });
+      }));
     }
   };
 
