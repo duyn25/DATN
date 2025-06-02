@@ -28,7 +28,6 @@ const updateProductQuantities = async (orderItems) => {
 const createOrder = async (req, res) => {
   try {
     const { userId, cartId, orderItems, addressInfo, totalAmount, paymentMethod } = req.body;
-    console.log("body", req.body)
     const orderDate = new Date();
     const orderStatus = "pending";
     const paymentStatus = paymentMethod === "cod" ? "pending" : "unpaid";
@@ -55,7 +54,6 @@ const createOrder = async (req, res) => {
 
       await codOrder.save();
       await updateProductQuantities(orderItems);
-      console.log('cart id',cartId)
       await Cart.findByIdAndDelete(cartId);
 
       return res.status(201).json({

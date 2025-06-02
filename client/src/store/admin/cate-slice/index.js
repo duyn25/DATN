@@ -6,12 +6,11 @@ const initialState = {
   categoryList: [],
 };
 
-// Thunk để thêm danh mục mới
 export const addNewCategory = createAsyncThunk(
   "/category/addNewCategory",  // Action type
   async (formData) => {
       const result = await axios.post(
-        "http://localhost:5000/api/admin/category/add",  // API endpoint
+        "http://localhost:5000/api/admin/category/add",  
         formData,  // Dữ liệu gửi lên
         {
           headers: {
@@ -19,11 +18,10 @@ export const addNewCategory = createAsyncThunk(
           },
         }
       );
-      return result?.data;  // Dữ liệu trả về từ API
+      return result?.data;  
   }
 );
 
-// Thunk để lấy tất cả danh mục
 export const fetchAllCategories = createAsyncThunk(
   "/category/fetchAllCategories",
   async () => {
@@ -33,12 +31,11 @@ export const fetchAllCategories = createAsyncThunk(
       );
       console.log("Kết quả API:", result?.data);
 
-      return result?.data;  // Dữ liệu trả về từ API
+      return result?.data;  
     
   }
 );
 
-// Thunk để chỉnh sửa danh mục
 export const editCategory = createAsyncThunk(
   "/category/editCategory",
   async ({ id, formData }) => {
@@ -52,12 +49,11 @@ export const editCategory = createAsyncThunk(
           },
         }
       );
-      return result?.data;  // Dữ liệu trả về từ API
+      return result?.data;  
    
   }
 );
 
-// Thunk để xóa danh mục
 export const deleteCategory = createAsyncThunk(
   "/category/deleteCategory",
   async (id) => {
@@ -88,14 +84,14 @@ const AdminCategorySlice = createSlice({
         state.categoryList = [];
       })
       .addCase(addNewCategory.fulfilled, (state, action) => {
-        state.categoryList.push(action.payload.data); // <-- đảm bảo payload.data đã có field specifications
+        state.categoryList.push(action.payload.data); // 
       })
       .addCase(editCategory.fulfilled, (state, action) => {
         const index = state.categoryList.findIndex(
           (category) => category._id === action.payload.data._id
         );
         if (index !== -1) {
-          state.categoryList[index] = action.payload.data; // dữ liệu đã đầy đủ specifications
+          state.categoryList[index] = action.payload.data; 
         }
       });
       

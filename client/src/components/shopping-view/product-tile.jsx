@@ -20,7 +20,7 @@ function ShoppingProductTile({
           />
 
           {product?.totalStock === 0 ? (
-            <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
+            <Badge className="absolute top-2 left-2 bg-gray-500 hover:bg-gray-600">
               Hết hàng
             </Badge>
           ) : product?.totalStock < 10 ? (
@@ -55,13 +55,6 @@ function ShoppingProductTile({
           </div>
         </CardContent>
       </div>
-      {product?.totalStock === 0 && (
-  <CardFooter>
-    <div className="w-full text-center py-2 rounded bg-gray-200 text-red-500 font-semibold">
-    </div>
-  </CardFooter>
-)}
-
     </Card>
 
     

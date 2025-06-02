@@ -117,7 +117,6 @@ export const addressFormControls = [
       console.error('Categories or selectedCategorySpecs is not an array');
       return []; 
     }
-    console.log('Selected Category Specs:', selectedCategorySpecs);
 
     const baseFields = [
       {

@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import CommonForm from "@/components/common/form";
+import Swal from "sweetalert2";
 import {
   Table,
   TableBody,
@@ -76,29 +77,35 @@ function AdminSpecifications() {
   }
 
   function handleDelete(getCurrentSpecId) {
-  const confirmDelete = window.confirm("Bạn có chắc chắn muốn xoá thông số này?");
-  if (!confirmDelete) return;
+  Swal.fire({
+    title: "Xác nhận xoá?",
+    text: "Bạn có chắc chắn muốn xoá thông số này?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Xoá",
+    cancelButtonText: "Huỷ",
+  }).then((confirm) => {
+    if (!confirm.isConfirmed) return;
 
-  dispatch(deleteSpec(getCurrentSpecId)).then((res) => {
-    if (res?.payload?.success) {
-      toast({
-        title: "Xoá thông số thành công",
-      });
-      dispatch(fetchAllSpecs());
-    } else {
-      toast({
-        title: "Không thể xoá",
-        description: res?.payload?.message || "Thông số đang được sử dụng.",
-        variant: "destructive",
-      });
-    }
+    dispatch(deleteSpec(getCurrentSpecId)).then((res) => {
+      if (res?.payload?.success) {
+        toast({
+          title: "Xoá thông số thành công",
+        });
+        dispatch(fetchAllSpecs());
+      } else {
+        toast({
+          title: "Không thể xoá",
+          description: res?.payload?.message || "Thông số đang được sử dụng.",
+          variant: "destructive",
+        });
+      }
+    });
   });
 }
 
 
   function handleEdit(spec) {
-        console.log("allowedValues raw:", spec.allowedValues);
-
     setCurrentEditedId(spec._id);
     setOpenForm(true);
     setFormData({

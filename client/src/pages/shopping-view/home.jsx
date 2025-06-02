@@ -44,43 +44,46 @@ function ShoppingHome() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Banner */}
-      <div className="relative w-full h-[350px] overflow-hidden">
-        {featureImageList && featureImageList.length > 0
-          ? featureImageList.map((slide, index) => (
-              <img
-                src={slide?.image}
-                key={index}
-                className={`${
-                  index === currentSlide ? "opacity-100" : "opacity-0"
-                } absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000`}
-                alt={`banner-${index}`}
-              />
-            ))
-          : null}
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() =>
-            setCurrentSlide(
-              (prevSlide) =>
-                (prevSlide - 1 + featureImageList.length) % featureImageList.length
-            )
-          }
-          className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/80"
-        >
-          <ChevronLeftIcon className="w-4 h-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() =>
-            setCurrentSlide((prevSlide) => (prevSlide + 1) % featureImageList.length)
-          }
-          className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/80"
-        >
-          <ChevronRightIcon className="w-4 h-4" />
-        </Button>
+      <div className="container mx-auto px-4 mt-2">
+        <div className="relative w-full h-[350px] overflow-hidden rounded-2xl">
+          {featureImageList && featureImageList.length > 0
+            ? featureImageList.map((slide, index) => (
+                <img
+                  src={slide?.image}
+                  key={index}
+                  className={`${
+                    index === currentSlide ? "opacity-100" : "opacity-0"
+                  } absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000`}
+                  alt={`banner-${index}`}
+                />
+              ))
+            : null}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() =>
+              setCurrentSlide(
+                (prevSlide) =>
+                  (prevSlide - 1 + featureImageList.length) % featureImageList.length
+              )
+            }
+            className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/80 hover:bg-white"
+          >
+            <ChevronLeftIcon className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() =>
+              setCurrentSlide((prevSlide) => (prevSlide + 1) % featureImageList.length)
+            }
+            className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/80 hover:bg-white"
+          >
+            <ChevronRightIcon className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
+
 
       {/* Top bán chạy */}
       <SectionProduct
@@ -96,7 +99,7 @@ function ShoppingHome() {
         handleGetProductDetails={handleGetProductDetails}
       />
 
-      {/* Sale mạnh */}
+      {/* Sale */}
       <SectionProduct
         title="Giảm giá sốc"
         products={hotSales}

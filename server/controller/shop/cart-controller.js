@@ -32,12 +32,29 @@ const addToCart = async (req, res) => {
     );
 
     if (findCurrentProductIndex === -1) {
+      if (quantity > product.totalStock) {
+        return res.status(400).json({
+          success: false,
+          message: "Số lượng vượt quá tồn kho!",
+        });
+      }
       cart.items.push({ productId, quantity });
     } else {
-      cart.items[findCurrentProductIndex].quantity += quantity;
+      const currentQty = cart.items[findCurrentProductIndex].quantity;
+      const newQty = currentQty + quantity;
+
+      if (newQty > product.totalStock) {
+        return res.status(400).json({
+          success: false,
+          message: `Chỉ còn ${product.totalStock - currentQty} sản phẩm`,
+        });
+      }
+
+      cart.items[findCurrentProductIndex].quantity = newQty;
     }
 
     await cart.save();
+
     res.status(200).json({
       success: true,
       data: cart,
@@ -50,6 +67,7 @@ const addToCart = async (req, res) => {
     });
   }
 };
+
 
 const fetchCartItems = async (req, res) => {
   try {

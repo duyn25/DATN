@@ -88,7 +88,18 @@ const AdminProductSlice = createSlice({
       .addCase(fetchAllProducts.rejected, (state) => {
         state.isLoading = false;
         state.productList = [];
+      })
+      .addCase(editProduct.fulfilled, (state, action) => {
+        const updated = action.payload.data;
+        const index = state.productList.findIndex(p => p._id === updated._id);
+        if (index !== -1) {
+          state.productList[index] = updated;
+        }
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.productList = state.productList.filter(p => p._id !== action.payload.id);
       });
+      
   },
 });
 

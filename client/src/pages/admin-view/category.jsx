@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import Swal from "sweetalert2";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -64,19 +65,30 @@ function AdminCategories() {
   }
 
   function handleDelete(id) {
-  dispatch(deleteCategory(id)).then((res) => {
-    if (res?.payload?.success) {
-      toast({
-        title: "Xoá danh mục thành công",
-      });
-      dispatch(fetchAllCategories());
-    } else {
-      toast({
-        title: "Không thể xoá danh mục",
-        description: res?.payload?.message || "Danh mục đang được sử dụng hoặc đã xảy ra lỗi.",
-        variant: "destructive",
-      });
-    }
+  Swal.fire({
+    title: "Xác nhận xoá?",
+    text: "Bạn có chắc chắn muốn xoá danh mục này?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Xoá",
+    cancelButtonText: "Huỷ",
+  }).then((confirm) => {
+    if (!confirm.isConfirmed) return;
+
+    dispatch(deleteCategory(id)).then((res) => {
+      if (res?.payload?.success) {
+        toast({
+          title: "Xoá danh mục thành công",
+        });
+        dispatch(fetchAllCategories());
+      } else {
+        toast({
+          title: "Không thể xoá danh mục",
+          description: res?.payload?.message || "Danh mục đang được sử dụng hoặc đã xảy ra lỗi.",
+          variant: "destructive",
+        });
+      }
+    });
   });
 }
   useEffect(() => {

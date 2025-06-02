@@ -38,13 +38,22 @@ const getAdminStatistics = async (req, res) => {
       { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
     ]);
     const totalOrders = await Order.countDocuments({
-  orderDate: { $gte: startDate, $lt: endDate },
+    orderDate: { $gte: startDate, $lt: endDate },
 });
 
-    const [totalProducts] = await Promise.all([
-      Order.countDocuments(),
-      Product.countDocuments(),
-    ]);
+   const [{ totalProducts = 0 } = {}] = await Order.aggregate([
+  { $match: dateFilter },
+  { $unwind: "$orderItems" },
+  {
+    $group: {
+      _id: null,
+      totalProducts: { $sum: "$orderItems.quantity" },
+    },
+  },
+]);
+
+
+
 
     const topSellingProducts = await Product.find()
       .sort({ sold: -1 })

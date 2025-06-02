@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
 import { addProductFormElements } from "@/config";
+import Swal from "sweetalert2";
 import {
   addNewProduct,
   deleteProduct,
@@ -113,6 +114,9 @@ function AdminProducts() {
     if (currentEditedId !== null) {
       dispatch(editProduct({ id: currentEditedId, formData: payload })).then((data) => {
         if (data?.payload?.success) {
+          toast({
+        title: "Sửa sản phẩm thành công",
+      });
           dispatch(fetchAllProducts());
           resetForm();
         }
@@ -128,22 +132,33 @@ function AdminProducts() {
     }
   };
 
-  const handleDelete = (productId) => {
-    dispatch(deleteProduct(productId)).then((data) => {
-      if (data?.payload?.success) {
-        toast({
-          title: "Xoá sản phẩm thành công",
-        });
-        dispatch(fetchAllProducts());
-      } else {
-        toast({
-          title: "Không thể xoá sản phẩm",
-          description: data?.payload?.message || "Đã xảy ra lỗi khi xoá.",
-          variant: "destructive",
-        });
-      }
+  const handleDelete = async (productId) => {
+  const result = await Swal.fire({
+    title: "Xác nhận xoá?",
+    text: "Bạn có chắc chắn muốn xoá sản phẩm này?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Xoá",
+    cancelButtonText: "Huỷ",
+  });
+
+  if (!result.isConfirmed) return;
+
+  const data = dispatch(deleteProduct(productId));
+
+  if (data?.payload?.success) {
+    toast({
+      title: "Xoá sản phẩm thành công",
     });
-  };
+    dispatch(fetchAllProducts());
+  } else {
+    toast({
+      title: "Không thể xoá sản phẩm",
+      description: data?.payload?.message || "Đã xảy ra lỗi khi xoá.",
+      variant: "destructive",
+    });
+  }
+};
 
   const resetForm = () => {
     setOpenCreateProductsDialog(false);

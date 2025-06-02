@@ -16,6 +16,7 @@ import { ShoppingCart, StarIcon } from "lucide-react";
 function ProductDetailPage() {
   const { productId } = useParams();
   const [reviewMsg, setReviewMsg] = useState("");
+  const [quantity, setQuantity] = useState(1);
   const dispatch = useDispatch();
   const [rating, setRating] = useState(0);
   const { productDetails } = useSelector((state) => state.shopProduct);
@@ -65,24 +66,32 @@ function ProductDetailPage() {
       : 0;
 
   const handleAddToCart = () => {
-    if (!user) {
-      toast({ title: "Vui lòng đăng nhập để thêm vào giỏ hàng." });
-      return;
-    }
+  if (!user) {
+    toast({ title: "Vui lòng đăng nhập để thêm vào giỏ hàng." });
+    return;
+  }
 
-    dispatch(
-      addToCart({
-        userId: user.id,
-        productId: productDetails._id,
-        quantity: 1,
-      })
-    ).then((res) => {
-      if (res?.payload?.success) {
-        dispatch(fetchCartItems(user.id));
-        toast({ title: "Đã thêm sản phẩm vào giỏ hàng." });
-      }
-    });
-  };
+  dispatch(
+    addToCart({
+      userId: user.id,
+      productId: productDetails._id,
+      quantity: 1,
+    })
+  ).then((res) => {
+    if (res?.payload?.success) {
+      dispatch(fetchCartItems(user.id)); 
+      toast({ title: "Đã thêm sản phẩm vào giỏ hàng." });
+    } else {
+      dispatch(fetchCartItems(user.id));
+      toast({
+        
+        title: res?.payload?.message || "Không thể thêm sản phẩm vào giỏ.",
+        variant: "destructive",
+      });
+    }
+  });
+};
+
 
   if (!productDetails) {
     return <div className="p-10 text-center">Đang tải sản phẩm...</div>;

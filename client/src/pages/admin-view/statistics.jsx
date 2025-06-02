@@ -53,26 +53,33 @@ export default function AdminStatistics() {
 
   // Xuất Excel
   const exportToExcel = () => {
-    const sheetData = [
-      ["I. Thống kê tổng quan", ""],
-      ["Tổng doanh thu", `${totalRevenue.toLocaleString()} đ`],
-      ["Tổng đơn hàng", totalOrders],
-      ["Tổng sản phẩm", totalProducts],
-      ["", ""],
-      ["II. Trạng thái đơn hàng", ""],
-      ...orderStatusStats.map((s) => [s.status || s._id, s.count]),
-      ["", ""],
-      ["III. Doanh thu theo tháng", ""],
-      ...monthlyRevenue.map((m) => [`Tháng ${m.month}`, `${m.total.toLocaleString()} đ`]),
-    ];
+  const sheetData = [
+    ["I. Thống kê tổng quan", ""],
+    ["Tổng doanh thu", `${totalRevenue.toLocaleString()} đ`],
+    ["Tổng đơn hàng", totalOrders],
+    ["Tổng sản phẩm", totalProducts],
+    ["", ""],
+    ["II. Trạng thái đơn hàng", ""],
+    ...orderStatusStats.map((s) => [s.status || s._id, s.count]),
+    ["", ""],
+    ["III. Doanh thu theo tháng", ""],
+    ...monthlyRevenue.map((m) => [`Tháng ${m.month}`, `${m.total.toLocaleString()} đ`]),
+    ["", ""],
+    ["IV. Top 5 sản phẩm bán chạy", ""],
+    ...topSellingProducts.map((p, i) => [`${i + 1}. ${p.productName}`, `${p.sold} đã bán`]),
+    ["", ""],
+    ["V. Top 5 sản phẩm bán chậm", ""],
+    ...slowSellingProducts.map((p, i) => [`${i + 1}. ${p.productName}`, `${p.sold} đã bán`]),
+  ];
 
-    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Thống kê");
+  const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Thống kê");
 
-    const buffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    saveAs(new Blob([buffer], { type: "application/octet-stream" }), `thong_ke_${selectedYear}.xlsx`);
-  };
+  const buffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  saveAs(new Blob([buffer], { type: "application/octet-stream" }), `thong_ke_${selectedYear}.xlsx`);
+};
+
 
   // Xuất PDF
   const exportToPDF = () => {
@@ -111,6 +118,34 @@ export default function AdminStatistics() {
             ],
           },
         },
+        topSellingProducts.length > 0 && { text: "\nIV. Top 5 sản phẩm bán chạy", style: "section" },
+        topSellingProducts.length > 0 && {
+          table: {
+            widths: ["*", "*"],
+            body: [
+              ["Sản phẩm", "Số lượng đã bán"],
+              ...topSellingProducts.map((p, i) => [
+                `${i + 1}. ${p.productName}`,
+                `${p.sold} đã bán`,
+              ]),
+            ],
+          },
+        },
+
+        slowSellingProducts.length > 0 && { text: "\nV. Top 5 sản phẩm bán chậm", style: "section" },
+        slowSellingProducts.length > 0 && {
+          table: {
+            widths: ["*", "*"],
+            body: [
+              ["Sản phẩm", "Số lượng đã bán"],
+              ...slowSellingProducts.map((p, i) => [
+                `${i + 1}. ${p.productName}`,
+                `${p.sold} đã bán`,
+              ]),
+            ],
+          },
+        },
+
       ].filter(Boolean),
       styles: {
         header: { fontSize: 18, bold: true, margin: [0, 0, 0, 12] },
