@@ -28,7 +28,6 @@ function AdminOrderDetailsView({ orderDetails }) {
   function handleUpdateStatus(event) {
     event.preventDefault();
     const { status } = formData;
-    console.log(formData,"order data")
     const updatedData = {
     id: orderDetails?._id,
     orderStatus: status,
@@ -149,7 +148,7 @@ function AdminOrderDetailsView({ orderDetails }) {
                 componentType: "select",
                 options: [
                   { id: "pending", label: "Chờ xác nhận" },
-                  { id: "confirm", label: "Đã xác nhận" },
+                  { id: "confirmed", label: "Đã xác nhận" },
                   { id: "processing", label: "Đang chuẩn bị hàng" },
                   { id: "shipped", label: "Đang giao hàng" },
                   { id: "delivered", label: "Đã giao hàng" },

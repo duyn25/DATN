@@ -1,22 +1,27 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-export const fetchAdminStats = createAsyncThunk('/admin/fetchAdminStats', async () => {
-  const response = await axios.get('http://localhost:5000/api/admin/stat/get');
-  return response.data;
-});
+export const fetchAdminStats = createAsyncThunk(
+  'adminStats/fetchAdminStats',
+  async ({ year }) => {
+    const response = await axios.get(`http://localhost:5000/api/admin/stat/get?year=${year}`);
+    return response.data;
+  }
+);
 
 const adminStatsSlice = createSlice({
   name: 'adminStats',
   initialState: {
     data: null,
     loading: false,
-    error: null
+    error: null,
   },
-  extraReducers: builder => {
+  reducers: {}, 
+  extraReducers: (builder) => {
     builder
-      .addCase(fetchAdminStats.pending, state => {
+      .addCase(fetchAdminStats.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchAdminStats.fulfilled, (state, action) => {
         state.loading = false;
@@ -26,7 +31,7 @@ const adminStatsSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       });
-  }
+  },
 });
 
 export default adminStatsSlice.reducer;

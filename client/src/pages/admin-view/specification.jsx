@@ -31,7 +31,7 @@ const initialSpec = {
   specType: "",
   specDescription: "",
   specUnit: "",
-  allowedValues: "", // Chuỗi textarea, mỗi dòng là 1 giá trị
+  allowedValues: "", 
 };
 
 function AdminSpecifications() {
@@ -47,11 +47,10 @@ function AdminSpecifications() {
 
     let processedForm = { ...formData };
 
-    // Chỉ xử lý allowedValues nếu specType là 'select'
     if (formData.specType === "select") {
       if (typeof formData.allowedValues === "string") {
         processedForm.allowedValues = formData.allowedValues
-          .split("\n")
+          .split(/[\n,]/) 
           .map((v) => v.trim())
           .filter(Boolean);
       }
@@ -77,14 +76,29 @@ function AdminSpecifications() {
   }
 
   function handleDelete(getCurrentSpecId) {
-    dispatch(deleteSpec(getCurrentSpecId)).then((data) => {
-      if (data?.payload?.success) {
-        dispatch(fetchAllSpecs());
-      }
-    });
-  }
+  const confirmDelete = window.confirm("Bạn có chắc chắn muốn xoá thông số này?");
+  if (!confirmDelete) return;
+
+  dispatch(deleteSpec(getCurrentSpecId)).then((res) => {
+    if (res?.payload?.success) {
+      toast({
+        title: "Xoá thông số thành công",
+      });
+      dispatch(fetchAllSpecs());
+    } else {
+      toast({
+        title: "Không thể xoá",
+        description: res?.payload?.message || "Thông số đang được sử dụng.",
+        variant: "destructive",
+      });
+    }
+  });
+}
+
 
   function handleEdit(spec) {
+        console.log("allowedValues raw:", spec.allowedValues);
+
     setCurrentEditedId(spec._id);
     setOpenForm(true);
     setFormData({
@@ -113,7 +127,6 @@ function AdminSpecifications() {
           <TableRow>
             <TableHead>Tên</TableHead>
             <TableHead>Mô tả</TableHead>
-            <TableHead>Kiểu dữ liệu</TableHead>
             <TableHead>Đơn vị</TableHead>
           </TableRow>
         </TableHeader>

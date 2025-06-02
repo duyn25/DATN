@@ -58,11 +58,6 @@ const getFilteredProducts = async (req, res) => {
       }
 
      
-const numericSpecIds = [
-  "681a8098608d859da8b3c85c", // Dung tích
-  "680ad9e2bf49fe283ffc91ec", // Công suất
-];
-
 const validSpecConditions = Object.entries(parsedSpecs)
   .filter(([specId, values]) =>
     /^[a-fA-F0-9]{24}$/.test(specId) &&
@@ -72,10 +67,8 @@ const validSpecConditions = Object.entries(parsedSpecs)
   .flatMap(([specId, values]) =>
     values.map((val) => {
       const isNumericRange = /^\d+(\.\d+)?\s*-\s*\d+(\.\d+)?$/.test(val);
-      const [min, max] = isNumericRange ? val.split("-").map(Number) : [];
-
-      // Nếu spec là dạng số + value là khoảng: lọc theo số
-      if (numericSpecIds.includes(specId) && isNumericRange) {
+      if (isNumericRange) {
+        const [min, max] = val.split("-").map(Number);
         return {
           $expr: {
             $and: [
@@ -111,13 +104,14 @@ const validSpecConditions = Object.entries(parsedSpecs)
         };
       }
 
-      // Còn lại là kiểu select: lọc đúng chuỗi
+      // Trường hợp value là chuỗi (select/text)
       return {
         specId,
         value: val,
       };
     })
   );
+
 
 
       if (validSpecConditions.length > 0 && products.length > 0) {
@@ -217,10 +211,66 @@ const getFilterFieldsByCategory = async (req, res) => {
       valueMap[id].add(rawValue);
     });
 
-    const enrichedSpecs = specs.map(spec => ({
-      ...spec,
-      values: Array.from(valueMap[spec._id.toString()] || []).sort()
-    }));
+    const generateSmartBuckets = (values, desiredBuckets = 4) => {
+      const nums = values
+        .map(v => parseFloat(v))
+        .filter(n => !isNaN(n))
+        .sort((a, b) => a - b);
+
+      if (nums.length < 2) return [];
+
+      const min = Math.floor(nums[0]);
+      const max = Math.ceil(nums[nums.length - 1]);
+      const range = max - min;
+
+      if (range === 0) return [];
+
+      const rawStep = range / desiredBuckets;
+
+      const niceSteps = [1, 5, 10, 20, 50, 100, 200, 500, 1000, 2000];
+      const step = niceSteps.find(s => s >= rawStep) || 1000;
+
+      const buckets = [];
+      let current = Math.floor(min / step) * step;
+
+      while (current < max) {
+        const from = current;
+        const to = current + step;
+        buckets.push({
+          id: `${from}-${to}`,
+          label: `${from} - ${to}`,
+          min: from,
+          max: to
+        });
+        current = to;
+      }
+
+      if (nums[nums.length - 1] > buckets[buckets.length - 1].max) {
+        const lastMax = buckets[buckets.length - 1].max;
+        buckets.push({
+          id: `${lastMax}+`,
+          label: `Trên ${lastMax}`,
+          min: lastMax,
+          max: Infinity
+        });
+      }
+
+      return buckets;
+    };
+
+    const enrichedSpecs = specs.map(spec => {
+      const rawValues = Array.from(valueMap[spec._id.toString()] || []).sort();
+      let rangePresets = [];
+      if (spec.specType === "number") {
+        rangePresets = generateSmartBuckets(rawValues);
+      }
+
+      return {
+        ...spec,
+        values: rawValues,
+        rangePresets
+      };
+    });
 
     res.status(200).json({ success: true, data: enrichedSpecs });
   } catch (error) {
@@ -228,9 +278,9 @@ const getFilterFieldsByCategory = async (req, res) => {
     res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };
+
 const homeProducts = async (req, res) => {
   try {
-    // 1. Top bán chạy
     const topSelling = await Product.find({})
       .sort({ sold: -1 })
       .limit(5);

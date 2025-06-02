@@ -28,7 +28,6 @@ function UserCartItemsContent({ cartItem }) {
       dispatch(fetchCartItems(user.id));
     }
   }, [dispatch, user]);
-  console.log("cart item: ", cartItems)
   function handleUpdateQuantity(getCartItem, typeOfAction) {
     
     if (typeOfAction == "plus") {
@@ -42,7 +41,6 @@ function UserCartItemsContent({ cartItem }) {
         const getCurrentProductIndex = productList.findIndex(
           (product) => product._id === getCartItem?.productId
         );
-        console.log("productlist",productList)
         const getTotalStock = productList[getCurrentProductIndex].totalStock;
 
         console.log(getCurrentProductIndex, getTotalStock, "getTotalStock");

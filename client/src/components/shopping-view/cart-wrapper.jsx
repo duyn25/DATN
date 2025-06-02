@@ -2,10 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "../ui/button";
 import { fetchCartItems } from "@/store/shop/cart-slice";
-
 import { SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import UserCartItemsContent from "./cart-items-content";
 import { useDispatch, useSelector } from "react-redux";
+
 function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
@@ -49,7 +49,6 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
             Giỏ hàng của bạn đang trống.
           </div>
         )}
-
       </div>
 
       <div className="mt-8 space-y-4">
@@ -60,7 +59,10 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
       </div>
 
       <Button
-        onClick={() => navigate("/shop/checkout")}
+        onClick={() => {
+          if (setOpenCartSheet) setOpenCartSheet(false);
+          setTimeout(() => navigate("/shop/checkout"), 200);
+        }}
         className="w-full mt-6 bg-red-500 hover:bg-red-700"
         disabled={cartItems.length === 0}
       >
@@ -69,7 +71,5 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
     </SheetContent>
   );
 }
-
-
 
 export default UserCartWrapper;

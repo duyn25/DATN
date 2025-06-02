@@ -96,6 +96,7 @@ function CommonForm({
       case "textarea":
         element = (
           <Textarea
+            rows={4} 
             name={getControlItem.name}
             placeholder={getControlItem.placeholder}
             id={getControlItem.id}

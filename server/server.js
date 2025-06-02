@@ -15,7 +15,7 @@ const shopOrderRouter = require('./routes/shop/order-route');
 const shopSearchRouter = require('./routes/shop/search-routes');
 const commonFeatureRouter = require("./routes/common/feature-routes");
 const shopReviewRouter = require("./routes/shop/review-routes");
-
+const shopChatbotRouter = require("./routes/shop/chatbot-routes")
 
 mongoose.connect('mongodb+srv://ngduytttb:ngduytttb@cluster0.mtfljp9.mongodb.net/'
 
@@ -52,6 +52,7 @@ app.use('/api/shop/cart',shopCartRouter);
 app.use('/api/shop/order',shopOrderRouter);
 app.use("/api/shop/address", shopAddressRouter);
 app.use("/api/shop/search", shopSearchRouter);
+app.use("/api/shop/chatbot", shopChatbotRouter);
 app.use("/api/common/feature", commonFeatureRouter);
 app.use("/api/shop/review", shopReviewRouter);
 

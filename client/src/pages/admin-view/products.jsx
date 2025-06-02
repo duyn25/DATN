@@ -1,3 +1,4 @@
+
 import ProductImageUpload from "@/components/admin-view/image-upload";
 import AdminProductTile from "@/components/admin-view/product-tile";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ProductForm from "@/components/admin-view/product-form";
 import axios from "axios";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const initialFormData = {
   image: null,
@@ -36,7 +38,13 @@ const initialFormData = {
 
 function AdminProducts() {
   const [openCreateProductsDialog, setOpenCreateProductsDialog] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [visibleCount, setVisibleCount] = useState(10);
+  const [selectedCategory, setSelectedCategory] = useState("");
+
   const { categoryList } = useSelector((state) => state.adminCategory);
+  const { productList } = useSelector((state) => state.adminProduct);
+
   const [selectedCategorySpecs, setSelectedCategorySpecs] = useState([]);
   const [formData, setFormData] = useState(initialFormData);
   const [imageFile, setImageFile] = useState(null);
@@ -44,11 +52,9 @@ function AdminProducts() {
   const [imageLoadingState, setImageLoadingState] = useState(false);
   const [currentEditedId, setCurrentEditedId] = useState(null);
 
-  const { productList } = useSelector((state) => state.adminProduct);
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  // Lấy danh mục và sản phẩm
   useEffect(() => {
     dispatch(fetchAllProducts());
     if (categoryList.length === 0) {
@@ -56,7 +62,6 @@ function AdminProducts() {
     }
   }, [dispatch]);
 
-  // Lấy thông số kỹ thuật khi chọn/đổi danh mục
   useEffect(() => {
     if (formData.categoryId) {
       axios
@@ -70,12 +75,10 @@ function AdminProducts() {
     }
   }, [formData.categoryId]);
 
-  // Khi bấm "Sửa", cập nhật đầy đủ specs và image
   const handleEditProduct = (product) => {
     setOpenCreateProductsDialog(true);
     setCurrentEditedId(product?._id);
 
-    // Đưa specifications về dạng object {specId: value}
     const specsObj = {};
     product.specifications?.forEach((spec) => {
       const id = spec.specId?._id || spec.specId || spec._id;
@@ -128,7 +131,16 @@ function AdminProducts() {
   const handleDelete = (productId) => {
     dispatch(deleteProduct(productId)).then((data) => {
       if (data?.payload?.success) {
+        toast({
+          title: "Xoá sản phẩm thành công",
+        });
         dispatch(fetchAllProducts());
+      } else {
+        toast({
+          title: "Không thể xoá sản phẩm",
+          description: data?.payload?.message || "Đã xảy ra lỗi khi xoá.",
+          variant: "destructive",
+        });
       }
     });
   };
@@ -142,36 +154,88 @@ function AdminProducts() {
     setSelectedCategorySpecs([]);
   };
 
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + 10);
+  };
+
+  const filteredProducts = productList?.filter((product) => {
+    const matchKeyword = product.productName
+      .toLowerCase()
+      .includes(searchKeyword.toLowerCase());
+
+    const matchCategory = selectedCategory
+      ? product.categoryId === selectedCategory
+      : true;
+
+    return matchKeyword && matchCategory;
+  });
+
   return (
     <Fragment>
-      <h1 className="text-2xl font-bold">Tất cả sản phẩm</h1>
-      <div className="mb-5 w-full flex justify-end">
+      <h1 className="text-2xl font-bold mb-4">Danh sách sản phẩm</h1>
+
+      <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <input
+          type="text"
+          value={searchKeyword}
+          onChange={(e) => setSearchKeyword(e.target.value)}
+          placeholder="Tìm theo tên sản phẩm..."
+          className="w-full md:w-1/3 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="w-full md:w-1/3 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+        >
+          <option value="">Tất cả danh mục</option>
+          {categoryList.map((cate) => (
+            <option key={cate._id} value={cate._id}>
+              {cate.categoryName}
+            </option>
+          ))}
+        </select>
+
         <Button onClick={() => setOpenCreateProductsDialog(true)}>
           Thêm sản phẩm
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
-        {productList?.length > 0 &&
-          productList.map((productItem) => (
-            <AdminProductTile
-              key={productItem._id}
-              setFormData={setFormData}
-              setOpenCreateProductsDialog={setOpenCreateProductsDialog}
-              setCurrentEditedId={setCurrentEditedId}
-              setUploadedImageUrl={setUploadedImageUrl}
-              setImageFile={setImageFile}
-              product={productItem}
-              handleEdit={() => handleEditProduct(productItem)}
-              handleDelete={handleDelete}
-            />
-          ))}
+      <div className="overflow-auto border rounded-lg">
+        <Table >
+          <TableHeader >
+            <TableRow>
+              <TableHead className="p-2">Ảnh</TableHead>
+              <TableHead className="p-2">Tên sản phẩm</TableHead>
+              <TableHead className="p-2">Giá</TableHead>
+              <TableHead className="p-2">Giá khuyến mãi</TableHead>
+              <TableHead className="p-2">Thao tác</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredProducts
+              ?.slice(0, visibleCount)
+              .map((productItem) => (
+                <AdminProductTile
+                  key={productItem._id}
+                  product={productItem}
+                  handleEditProduct={handleEditProduct}
+                  handleDelete={handleDelete}
+                />
+              ))}
+          </TableBody>
+        </Table>
       </div>
 
-      <Sheet
-        open={openCreateProductsDialog}
-        onOpenChange={resetForm}
-      >
+      {visibleCount < filteredProducts?.length && (
+        <div className="flex justify-center mt-4">
+          <Button variant="outline" onClick={handleLoadMore}>
+            Xem thêm
+          </Button>
+        </div>
+      )}
+
+      <Sheet open={openCreateProductsDialog} onOpenChange={resetForm}>
         <SheetContent side="right" className="overflow-auto">
           <SheetHeader>
             <SheetTitle>

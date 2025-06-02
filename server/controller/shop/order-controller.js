@@ -241,10 +241,47 @@ const createOrder = async (req, res) => {
         .json({ success: false, message: "Lỗi xử lý thông báo thanh toán" });
     }
   };
-  
+  const cancelOrderById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy đơn hàng",
+      });
+    }
+
+    if (!["pending", "confirmed"].includes(order.orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: "Đơn hàng không thể huỷ ở trạng thái hiện tại",
+      });
+    }
+
+    order.orderStatus = "cancelled";
+    order.orderUpdateDate = new Date();
+
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Đơn hàng đã được huỷ thành công",
+    });
+  } catch (error) {
+    console.error("Lỗi huỷ đơn hàng:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server khi huỷ đơn hàng",
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   momoIpnHandler,
   getAllOrdersByUser,
   getOrderDetails,
+  cancelOrderById,
 };

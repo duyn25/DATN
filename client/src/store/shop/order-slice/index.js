@@ -40,6 +40,15 @@ export const createNewOrder = createAsyncThunk(
       return response.data;
     }
   );
+  export const cancelOrderById = createAsyncThunk(
+  "/order/cancelOrderById",
+  async (orderId) => {
+   
+      const response = await axios.put(`http://localhost:5000/api/shop/order/cancel/${orderId}`);
+      return response.data;
+    
+  }
+);
 const shopOrderSlice = createSlice({
   name: "shopOrder",
   initialState,
@@ -84,6 +93,15 @@ const shopOrderSlice = createSlice({
       .addCase(getOrderDetails.rejected, (state) => {
         state.isLoading = false;
         state.orderDetails = null;
+      })
+      .addCase(cancelOrderById.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(cancelOrderById.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(cancelOrderById.rejected, (state) => {
+        state.isLoading = false;
       });
   },
 });

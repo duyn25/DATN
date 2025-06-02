@@ -41,7 +41,6 @@ const getOrderDetailsForAdmin = async (req, res) => {
         message: "Order not found!",
       });
     }
-  console.log("order",order)
     res.status(200).json({
       success: true,
       data: order,

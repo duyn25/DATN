@@ -1,6 +1,5 @@
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
-import { Label } from "../ui/label";
 
 function AddressCard({
   addressInfo,
@@ -9,28 +8,60 @@ function AddressCard({
   setCurrentSelectedAddress,
   selectedId,
 }) {
+  const isSelected = selectedId?._id === addressInfo?._id;
+
   return (
     <Card
       onClick={
         setCurrentSelectedAddress
           ? () => setCurrentSelectedAddress(addressInfo)
-          : null
+          : undefined
       }
-      className={`cursor-pointer border-red-700 ${
-        selectedId?._id === addressInfo?._id
-          ? "border-red-900 border-[4px]"
-          : "border-black"
+      className={`cursor-pointer transition-all rounded-xl border-2 shadow-sm 
+      ${isSelected
+        ? "border-red-600 bg-red-50"
+        : "border-gray-200 hover:border-red-300 hover:shadow-md"
       }`}
+
     >
-      <CardContent className="grid p-4 gap-4">
-        <Label>Địa chỉ: {addressInfo?.address}</Label>
-        <Label>Tỉnh: {addressInfo?.city}</Label>
-        <Label>SĐT: {addressInfo?.phone}</Label>
-        <Label>Ghi chú: {addressInfo?.notes}</Label>
+      <CardContent className="p-4 space-y-1 text-sm text-gray-800">
+        <p>
+          <span className="font-semibold">Địa chỉ:</span> {addressInfo?.address}
+        </p>
+        <p>
+          <span className="font-semibold">Tỉnh/TP:</span> {addressInfo?.city}
+        </p>
+        <p>
+          <span className="font-semibold">SĐT:</span> {addressInfo?.phone}
+        </p>
+        {addressInfo?.notes && (
+          <p>
+            <span className="font-semibold">Ghi chú:</span> {addressInfo?.notes}
+          </p>
+        )}
       </CardContent>
-      <CardFooter className="p-3 flex justify-between">
-        <Button onClick={() => handleEditAddress(addressInfo)}>Sửa</Button>
-        <Button onClick={() => handleDeleteAddress(addressInfo)}>Xoá</Button>
+
+      <CardFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleEditAddress(addressInfo);
+          }}
+        >
+          Sửa
+        </Button>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteAddress(addressInfo);
+          }}
+        >
+          Xoá
+        </Button>
       </CardFooter>
     </Card>
   );

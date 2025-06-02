@@ -40,13 +40,11 @@ function ShoppingListing() {
   const [sort, setSort] = useState("price-lowtohigh");
   const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_PAGE);
 
-  // ✅ Khởi tạo filters với categoryId từ URL (nếu có)
   const [filters, setFilters] = useState(() => {
     const categoryId = searchParams.get("categoryId");
     return categoryId ? { categoryId } : {};
   });
 
-  // ✅ Cập nhật categoryId nếu URL thay đổi (không reset filter khác)
   useEffect(() => {
     const newCategoryId = searchParams.get("categoryId");
     if (newCategoryId) {
@@ -57,19 +55,16 @@ function ShoppingListing() {
     }
   }, [searchParams]);
 
-  // ✅ Reset số lượng sản phẩm hiển thị mỗi khi filter/sort đổi
   useEffect(() => {
     setVisibleCount(PRODUCTS_PER_PAGE);
   }, [filters, sort]);
 
-  // ✅ Gọi API khi filters hoặc sort thay đổi
   useEffect(() => {
     if (filters && Object.keys(filters).length > 0) {
       dispatch(fetchAllFilteredProducts({ filterParams: filters, sortParams: sort }));
     }
   }, [filters, sort, dispatch]);
 
-  // ✅ Đồng bộ URL mỗi khi filters thay đổi
   useEffect(() => {
     if (filters && Object.keys(filters).length > 0) {
       const queryString = createSearchParamsHelper(filters);
@@ -116,7 +111,7 @@ function ShoppingListing() {
 
       <div className="bg-background w-full rounded-lg shadow-sm">
         <div className="p-4 border-b flex flex-col md:flex-row items-center justify-between gap-2">
-          <h2 className="text-lg font-extrabold">
+          <h2 className="text-lg font-bold">
             Tìm thấy {productList?.length || 0} sản phẩm
           </h2>
           <DropdownMenu>

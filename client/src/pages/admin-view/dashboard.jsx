@@ -1,19 +1,29 @@
 import ProductImageUpload from "@/components/admin-view/image-upload";
 import { Button } from "@/components/ui/button";
-import { addFeatureImage, getFeatureImages } from "@/store/common-slice";
+import {
+  addFeatureImage,
+  getFeatureImages,
+  deleteFeatureImage,
+} from "@/store/common-slice";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { XIcon } from "lucide-react";
 
 function AdminDashboard() {
   const [imageFile, setImageFile] = useState(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
   const [imageLoadingState, setImageLoadingState] = useState(false);
+
   const dispatch = useDispatch();
   const { featureImageList } = useSelector((state) => state.commonFeature);
 
-  console.log(uploadedImageUrl, "uploadedImageUrl");
+  useEffect(() => {
+    dispatch(getFeatureImages());
+  }, [dispatch]);
 
-  function handleUploadFeatureImage() {
+  const handleUploadFeatureImage = () => {
+    if (!uploadedImageUrl) return;
+
     dispatch(addFeatureImage(uploadedImageUrl)).then((data) => {
       if (data?.payload?.success) {
         dispatch(getFeatureImages());
@@ -21,16 +31,20 @@ function AdminDashboard() {
         setUploadedImageUrl("");
       }
     });
-  }
+  };
 
-  useEffect(() => {
-    dispatch(getFeatureImages());
-  }, [dispatch]);
-
-  console.log(featureImageList, "featureImageList");
+  const handleDeleteFeatureImage = (id) => {
+    dispatch(deleteFeatureImage(id)).then((res) => {
+      if (res?.payload?.success) {
+        dispatch(getFeatureImages());
+      }
+    });
+  };
 
   return (
-    <div>
+    <div className="p-4 max-w-3xl mx-auto">
+      <h2 className="text-xl font-bold mb-4">Thêm ảnh nổi bật</h2>
+
       <ProductImageUpload
         imageFile={imageFile}
         setImageFile={setImageFile}
@@ -39,23 +53,41 @@ function AdminDashboard() {
         setImageLoadingState={setImageLoadingState}
         imageLoadingState={imageLoadingState}
         isCustomStyling={true}
-        // isEditMode={currentEditedId !== null}
       />
-      <Button onClick={handleUploadFeatureImage} className="mt-5 w-full">
-        Upload
+
+      <Button
+        onClick={handleUploadFeatureImage}
+        className="mt-5 w-full"
+        disabled={!uploadedImageUrl || imageLoadingState}
+      >
+        {imageLoadingState ? "Đang tải..." : "Upload"}
       </Button>
-      <div className="flex flex-col gap-4 mt-5">
-        {featureImageList && featureImageList.length > 0
-          ? featureImageList.map((featureImgItem) => (
-              <div className="relative">
+
+      {featureImageList?.length > 0 && (
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-3">Danh sách ảnh nổi bật</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {featureImageList.map((item) => (
+              <div
+                key={item._id}
+                className="relative rounded overflow-hidden border group"
+              >
                 <img
-                  src={featureImgItem.image}
-                  className="w-full h-[300px] object-cover rounded-t-lg"
+                  src={item.image}
+                  alt="Ảnh nổi bật"
+                  className="w-full h-[300px] object-cover"
                 />
+                <button
+                  onClick={() => handleDeleteFeatureImage(item._id)}
+                  className="absolute top-2 right-2 bg-white/80 p-1 rounded-full text-red-600 hover:bg-white shadow transition-opacity opacity-0 group-hover:opacity-100"
+                >
+                  <XIcon className="w-5 h-5" />
+                </button>
               </div>
-            ))
-          : null}
-      </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

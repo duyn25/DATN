@@ -15,11 +15,9 @@ function AdminSpecTile({
     <TableRow>
       <TableCell>{specification?.specName}</TableCell>
       <TableCell>{specification?.specDescription}</TableCell>
-      <TableCell>{specification?.specType}</TableCell>
       <TableCell>{specification?.specUnit}</TableCell>
       <TableCell className="flex gap-2">
         <Button
-          variant="outline"
           onClick={() => {
             setOpenForm(true);
             setCurrentEditedId(specification._id);

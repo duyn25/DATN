@@ -8,11 +8,10 @@ export const translateOrderStatus = (status) => {
   switch (status) {
     case "pending": return "Chờ xác nhận";
     case "confirmed": return "Đã xác nhận";
-    case "processing": return "Đang xử lý";
-    case "shipped": return "Đang vận chuyển";
+    case "processing": return "Đang chuẩn bị";
+    case "shipped": return "Đang giao hàng";
     case "delivered": return "Đã giao";
     case "cancelled": return "Đã huỷ";
-    case "returned": return "Đã hoàn trả";
     default: return status;
   }
 };

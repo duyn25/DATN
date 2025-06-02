@@ -1,7 +1,7 @@
 const categoryList = require('../../models/categoryList');
 const categorySpec = require('../../models/categorySpec');
 const specificationList = require("../../models/specificationList");
-
+const Product = require("../../models/Product");
 const addCategory = async (req, res) => {
   try {
     const { categoryName, specifications } = req.body;
@@ -149,30 +149,47 @@ const editCategory = async (req, res) => {
   }
 };
 
-  const deleteCategory = async (req, res) => {
-    try {
-      const { id } = req.params;
-  
-      const categoryToDelete = await categoryList.findById(id);
-      if (!categoryToDelete) {
-        return res.status(404).json({ message: "Danh mục không tồn tại." });
-      }
-  
-     const result = await categorySpec.deleteMany({ categoryId: id });
-      console.log("Số bản ghi đã xóa:", result.deletedCount);
+ const deleteCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-  
-      await categoryToDelete.deleteOne(); 
-  
-      res.status(200).json({ success: true, message: "Danh mục đã được xóa." });
-    } catch (error) {
-      res.status(500).json({
-        message: "Lỗi khi xóa danh mục",
-        error: error.message,
+    const categoryToDelete = await categoryList.findById(id);
+    if (!categoryToDelete) {
+      return res.status(404).json({
+        success: false,
+        message: "Danh mục không tồn tại.",
       });
     }
-  };
-  
+
+    // Kiểm tra xem có sản phẩm nào đang sử dụng danh mục này không
+    const isUsedByProduct = await Product.exists({ categoryId: id });
+    if (isUsedByProduct) {
+      return res.status(400).json({
+        success: false,
+        message: "Không thể xoá vì danh mục đang được sử dụng bởi sản phẩm.",
+      });
+    }
+
+    // Xoá các bản ghi liên kết trong categorySpec
+    const result = await categorySpec.deleteMany({ categoryId: id });
+    console.log("Đã xoá thông số liên kết:", result.deletedCount);
+
+    // Xoá danh mục
+    await categoryToDelete.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: "Danh mục đã được xoá thành công.",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Đã xảy ra lỗi khi xoá danh mục.",
+      error: error.message,
+    });
+  }
+};
   
   module.exports = {
     addCategory,

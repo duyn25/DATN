@@ -64,11 +64,21 @@ function AdminCategories() {
   }
 
   function handleDelete(id) {
-    dispatch(deleteCategory(id)).then((res) => {
-      if (res?.payload?.success) 
-        dispatch(fetchAllCategories());
-    });
-  }
+  dispatch(deleteCategory(id)).then((res) => {
+    if (res?.payload?.success) {
+      toast({
+        title: "Xoá danh mục thành công",
+      });
+      dispatch(fetchAllCategories());
+    } else {
+      toast({
+        title: "Không thể xoá danh mục",
+        description: res?.payload?.message || "Danh mục đang được sử dụng hoặc đã xảy ra lỗi.",
+        variant: "destructive",
+      });
+    }
+  });
+}
   useEffect(() => {
     dispatch(fetchAllCategories());
     dispatch(fetchAllSpecs());

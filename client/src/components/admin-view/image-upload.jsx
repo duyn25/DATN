@@ -35,7 +35,7 @@ function ProductImageUpload({
 
   function handleRemoveImage() {
     setImageFile(null);
-    setUploadedImageUrl(""); // xóa luôn ảnh cũ
+    setUploadedImageUrl("");
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -57,7 +57,6 @@ function ProductImageUpload({
 
   useEffect(() => {
     if (imageFile !== null) uploadImageToCloudinary();
-    // eslint-disable-next-line
   }, [imageFile]);
 
   return (
@@ -66,7 +65,7 @@ function ProductImageUpload({
       <div
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        className={`border-2 border-dashed rounded-lg p-4`}
+        className="border-2 border-dashed rounded-lg p-4"
       >
         <Input
           id="image-upload"
@@ -75,7 +74,7 @@ function ProductImageUpload({
           ref={inputRef}
           onChange={handleImageFileChange}
         />
-        {/* Nếu có file mới, ưu tiên hiển thị thông tin file */}
+
         {imageFile ? (
           imageLoadingState ? (
             <Skeleton className="h-10 bg-gray-100" />
@@ -97,7 +96,6 @@ function ProductImageUpload({
             </div>
           )
         ) : uploadedImageUrl ? (
-          // Nếu có ảnh cũ (hoặc vừa upload) thì hiển thị ảnh
           <div className="relative w-32 h-32 mx-auto flex flex-col items-center justify-center">
             <img
               src={uploadedImageUrl}

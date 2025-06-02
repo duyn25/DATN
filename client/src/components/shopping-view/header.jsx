@@ -49,7 +49,6 @@ function HeaderSearchBox() {
     timeoutRef.current = setTimeout(async () => {
       try {
         const res = await axios.get(`http://localhost:5000/api/shop/search/suggest?keyword=${encodeURIComponent(val)}`);
-          console.log("Suggest response:", res.data);
         setSuggests(res.data.products || []);
         setShowDropdown(true);
       } catch {
@@ -67,16 +66,15 @@ function HeaderSearchBox() {
     }
   };
 
- const handleSuggestClick = (item) => {
-  setKeyword(item.productName);
-  setShowDropdown(false);
-  if (item.productId) {
-    navigate(`/shop/product/${item.productId}`);
-  } else {
-    navigate(`/shop/search?keyword=${encodeURIComponent(item.productName)}`);
-  }
-};
-
+  const handleSuggestClick = (item) => {
+    setKeyword(item.productName);
+    setShowDropdown(false);
+    if (item.productId) {
+      navigate(`/shop/product/${item.productId}`);
+    } else {
+      navigate(`/shop/search?keyword=${encodeURIComponent(item.productName)}`);
+    }
+  };
 
   const handleFocus = () => {
     setInputFocused(true);
@@ -86,13 +84,14 @@ function HeaderSearchBox() {
     setTimeout(() => {
       setInputFocused(false);
       setShowDropdown(false);
-    }, 160); 
+    }, 160);
   };
 
   return (
     <div className="relative w-full max-w-lg mx-auto">
       <input
-        className="border border-gray-300 rounded-full px-5 py-2 w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-[#d9503f] transition placeholder:text-gray-400 bg-white text-gray-900"        placeholder="Tìm kiếm sản phẩm..."
+        className="border border-gray-300 rounded-full px-5 py-2 w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-[#d9503f] transition placeholder:text-gray-400 bg-white text-gray-900"
+        placeholder="Tìm kiếm sản phẩm..."
         value={keyword}
         onChange={handleChange}
         onFocus={handleFocus}
@@ -101,14 +100,13 @@ function HeaderSearchBox() {
         autoComplete="off"
         style={{ fontSize: 16 }}
       />
-       {keyword && (
-    <X
-      size={20}
-      className="absolute right-10 top-2.5 text-gray-400 cursor-pointer hover:text-[#d9503f] transition"
-      onMouseDown={() => setKeyword("")}
-     
-    />
-  )}
+      {keyword && (
+        <X
+          size={20}
+          className="absolute right-10 top-2.5 text-gray-400 cursor-pointer hover:text-[#d9503f] transition"
+          onMouseDown={() => setKeyword("")}
+        />
+      )}
       <Search
         size={22}
         className="absolute right-4 top-2.5 text-gray-400 cursor-pointer hover:text-[#d9503f] transition"
@@ -121,37 +119,33 @@ function HeaderSearchBox() {
         >
           {suggests.map((item, idx) => (
             <div
-        key={item.productId || idx}
-        className="flex items-center gap-3 px-4 py-3 hover:bg-[#fff5f3] cursor-pointer border-b last:border-b-0 transition-all"
-        onMouseDown={() => handleSuggestClick(item)}
-
-      >
-  {/* Ảnh sản phẩm */}
-  <img
-    src={item.image || "/default-image.jpg"}
-    alt={item.productName}
-    className="w-14 h-14 object-cover rounded-lg border bg-gray-100 shadow"
-  />
-  {/* Thông tin sản phẩm */}
-          <div className="flex-1">
-            <div className=" text-[16px] text-gray-900 leading-5">{item.productName}</div>
-            <div className="text-xs text-gray-500 mb-1">{item.brand}</div>
-            <div className="flex gap-2 items-center">
-              <span className="text-primary font-bold text-[14px]">
-                {(item.salePrice > 0 ? item.salePrice : item.price).toLocaleString()} đ
-              </span>
-              {item.salePrice > 0 && (
-                <>
-                  <span className="text-gray-400 line-through text-[12px]">{item.price.toLocaleString()} đ</span>
-                  <span className="text-red-500 text-xs font-semibold">
-                    -{Math.round(100 - item.salePrice / item.price * 100)}%
+              key={item.productId || idx}
+              className="flex items-center gap-3 px-4 py-3 hover:bg-[#fff5f3] cursor-pointer border-b last:border-b-0 transition-all"
+              onMouseDown={() => handleSuggestClick(item)}
+            >
+              <img
+                src={item.image || "/default-image.jpg"}
+                alt={item.productName}
+                className="w-14 h-14 object-cover rounded-lg border bg-gray-100 shadow"
+              />
+              <div className="flex-1">
+                <div className=" text-[16px] text-gray-900 leading-5">{item.productName}</div>
+                <div className="text-xs text-gray-500 mb-1">{item.brand}</div>
+                <div className="flex gap-2 items-center">
+                  <span className="text-primary font-bold text-[14px]">
+                    {(item.salePrice > 0 ? item.salePrice : item.price).toLocaleString()} đ
                   </span>
-                </>
-              )}
+                  {item.salePrice > 0 && (
+                    <>
+                      <span className="text-gray-400 line-through text-[12px]">{item.price.toLocaleString()} đ</span>
+                      <span className="text-red-500 text-xs font-semibold">
+                        -{Math.round(100 - item.salePrice / item.price * 100)}%
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-
           ))}
         </div>
       )}
@@ -182,10 +176,10 @@ function HeaderRightContent() {
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent side="right" className="w-56">
-          <DropdownMenuLabel>{user?.userName}</DropdownMenuLabel>
+          <DropdownMenuLabel>Chào {user?.userName}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => navigate("/shop/account")}>
-            <UserCog className="mr-2 h-4 w-4" /> Tài khoản
+            <UserCog className="mr-2 h-4 w-4" /> Quản lý đơn hàng
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout}>
@@ -194,7 +188,7 @@ function HeaderRightContent() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
+      <Sheet open={openCartSheet} onOpenChange={setOpenCartSheet}>
         <Button
           size="sm"
           className="flex items-center bg-[#7d161c] text-white hover:bg-[#b02e1e] gap-2 shadow transition-all"
@@ -205,6 +199,7 @@ function HeaderRightContent() {
         </Button>
         <UserCartWrapper
           cartItems={cartItems?.items?.length > 0 ? cartItems.items : []}
+          setOpenCartSheet={setOpenCartSheet} // <-- Truyền prop này!
         />
       </Sheet>
     </div>
@@ -218,9 +213,12 @@ function ShoppingHeader() {
     <header className="sticky top-0 z-40 w-full bg-gradient-to-r from-[#d9503f] to-[#b02e1e] text-white shadow-md border-b">
       <div className="container mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
         {/* Logo */}
-        <Link to="/shop/home" className="flex items-center gap-2 font-extrabold text-xl tracking-wide hover:scale-105 transition-all">
+        <Link
+          to="/shop/home"
+          className="flex items-center gap-2 px-3 py-2 rounded-full bg-white shadow-md text-red-600 hover:bg-red-50 hover:scale-105 transition-all duration-200"
+        >
           <HousePlus className="w-7 h-7" />
-          <span className="font-bold text-lg">HC Store</span>
+          <span className="text-lg font-semibold tracking-tight">HC Điện Máy</span>
         </Link>
 
         {/* Danh mục */}
@@ -239,13 +237,13 @@ function ShoppingHeader() {
           </Button>
 
           {isHovered && (
-            <div className="absolute left-0 top-full w-[250px] bg-white text-black shadow-xl rounded-b-xl z-50">
+            <div className="absolute left-0 top-full w-[250px] bg-white text-black shadow-xl rounded-xl z-50">
               <MenuItems />
             </div>
           )}
         </div>
 
-        {/* Thanh tìm kiếm đẹp */}
+        {/* Thanh tìm kiếm  */}
         <div className="flex-1 flex justify-center md:justify-start">
           <HeaderSearchBox />
         </div>
@@ -258,4 +256,3 @@ function ShoppingHeader() {
 }
 
 export default ShoppingHeader;
-

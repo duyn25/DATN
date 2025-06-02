@@ -59,9 +59,9 @@ export const addSpecFormElements = [
     type: "text",
     componentType: "select",
     options: [
-      { id: "number", label: "Number" },
-      { id: "text", label: "Text" },
-      { id: "select", label: "Select" },
+      { id: "number", label: "Số" },
+      { id: "text", label: "Kí tự" },
+      { id: "select", label: "Lựa chọn" },
     ],
   },
   {
@@ -75,7 +75,7 @@ export const addSpecFormElements = [
     label: "Danh sách lựa chọn",
     name: "allowedValues",
     componentType: "textarea",
-    placeholder: "Nhập mỗi giá trị 1 dòng, ví dụ:\nCảm ứng\nNút nhấn\nXoay",
+    placeholder: "Nhập các giá trị",
     condition: (formData) => formData?.specType === "select", 
   },
 ];
@@ -157,11 +157,11 @@ export const addressFormControls = [
         placeholder: "Nhập giá",
       },
       {
-        label: "Giá sau giảm",
+        label: "Giá khuyến mãi",
         name: "salePrice",
         componentType: "input",
         type: "number",
-        placeholder: "Nhập giá giảm (nếu có)",
+        placeholder: "Nhập giá khuyến mãi (nếu có)",
       },
       {
         label: "Số lượng trong kho",
