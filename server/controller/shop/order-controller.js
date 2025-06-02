@@ -151,7 +151,6 @@ const createOrder = async (req, res) => {
       const { id } = req.params;
   
       const order = await Order.findById(id);
-      console.log("order",order)
       if (!order) {
         return res.status(404).json({
           success: false,
@@ -202,7 +201,6 @@ const createOrder = async (req, res) => {
       );
   
       const momoData = momoRes.data;
-      console.log("Kết quả từ MoMo:", momoData);
   
       if (momoData.resultCode === 0) {
           momoOrder.paymentStatus = "paid"

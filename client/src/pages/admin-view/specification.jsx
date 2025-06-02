@@ -128,6 +128,7 @@ function AdminSpecifications() {
             <TableHead>Tên</TableHead>
             <TableHead>Mô tả</TableHead>
             <TableHead>Đơn vị</TableHead>
+            <TableHead></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

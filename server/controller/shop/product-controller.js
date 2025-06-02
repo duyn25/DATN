@@ -31,11 +31,18 @@ const getFilteredProducts = async (req, res) => {
     if (minPrice || maxPrice) {
       const min = parseFloat(minPrice || 0);
       const max = parseFloat(maxPrice || Infinity);
+
       query.$or = [
-        { price: { $gte: min, $lte: max } },
-        { salePrice: { $gte: min, $lte: max } },
+        { salePrice: { $gt: 0, $gte: min, $lte: max } }, 
+        {
+          $and: [
+            { $or: [{ salePrice: 0 }, { salePrice: null }] }, 
+            { price: { $gte: min, $lte: max } },              g
+          ],
+        },
       ];
     }
+
 
     // Xử lý sắp xếp
     const sortMap = {
@@ -227,8 +234,8 @@ const getFilterFieldsByCategory = async (req, res) => {
 
       const rawStep = range / desiredBuckets;
 
-      const niceSteps = [1, 5, 10, 20, 50, 100, 200, 500, 1000, 2000];
-      const step = niceSteps.find(s => s >= rawStep) || 1000;
+      const niceSteps = [1, 5, 10, 20, 50, 100, 200, 500, 1000];
+      const step = niceSteps.find(s => s >= rawStep) || 4000;
 
       const buckets = [];
       let current = Math.floor(min / step) * step;

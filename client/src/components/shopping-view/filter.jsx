@@ -32,16 +32,28 @@ const ProductFilter = ({ filters, handleFilter }) => {
   }, []);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/shop/product/get")
-      .then(res => {
-        const brands = res.data.data
-          .map(p => p.brand)
-          .filter(Boolean);
-        const unique = [...new Set(brands)].map(b => ({ id: b, label: b }));
-        setBrands(unique);
-      })
-      .catch(err => console.error("Lỗi khi tải thương hiệu", err));
-  }, []);
+  const fetchBrands = async () => {
+    try {
+      let url = "http://localhost:5000/api/shop/product/get";
+      if (selectedCategory) {
+        url += `?categoryId=${selectedCategory}`;
+      }
+
+      const res = await axios.get(url);
+      const brands = res.data.data
+        .map(p => p.brand)
+        .filter(Boolean);
+
+      const unique = [...new Set(brands)].map(b => ({ id: b, label: b }));
+      setBrands(unique);
+    } catch (err) {
+      console.error("Lỗi khi tải thương hiệu", err);
+    }
+  };
+
+  fetchBrands();
+}, [selectedCategory]);
+
 
   useEffect(() => {
     if (!selectedCategory) return;

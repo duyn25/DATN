@@ -159,7 +159,7 @@ function AdminCategories() {
               <div>
               <div className="mb-4">
                 <label className="block mb-2 text-sm font-medium">Chọn thông số kỹ thuật</label>
-                <div className="space-y-2 max-h-60 overflow-y-auto border rounded-md p-2">
+                <div className="space-y-2 max-h-130 overflow-y-auto border rounded-md p-2">
                     {specificationList.map((spec) => (
                     <div key={spec._id} className="flex items-center space-x-2">
                         <input
@@ -183,7 +183,7 @@ function AdminCategories() {
             </div>
 
               </div>
-              <Button type="submit">
+              <Button className="w-full" type="submit">
                 {currentEditedId !== null ? "Sửa" : "Thêm"}
               </Button>
             </form>

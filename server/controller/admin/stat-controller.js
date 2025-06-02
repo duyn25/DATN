@@ -37,8 +37,11 @@ const getAdminStatistics = async (req, res) => {
       { $match: dateFilter },
       { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
     ]);
+    const totalOrders = await Order.countDocuments({
+  orderDate: { $gte: startDate, $lt: endDate },
+});
 
-    const [totalOrders, totalProducts] = await Promise.all([
+    const [totalProducts] = await Promise.all([
       Order.countDocuments(),
       Product.countDocuments(),
     ]);

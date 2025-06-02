@@ -82,7 +82,7 @@ function AdminOrdersView() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
+                  <TableHead>Sản phẩm</TableHead>
                   <TableHead>Thời gian đặt hàng</TableHead>
                   <TableHead>Trạng thái đơn hàng</TableHead>
                   <TableHead>Trạng thái thanh toán</TableHead>
@@ -95,7 +95,14 @@ function AdminOrdersView() {
               <TableBody>
                 {filteredOrders.map((orderItem) => (
                   <TableRow key={orderItem._id}>
-                    <TableCell>{orderItem?._id}</TableCell>
+                    <TableCell>{orderItem.orderItems.slice(0, 3).map((item, index) => (
+                  <img
+                    key={index}
+                    src={item.image}
+                    alt={item.productName}
+                    className="w-12 h-12 object-cover rounded border"
+                  />
+                ))}</TableCell>
                     <TableCell>
                       {orderItem?.orderDate
                         ? new Date(orderItem?.orderDate).toLocaleString()

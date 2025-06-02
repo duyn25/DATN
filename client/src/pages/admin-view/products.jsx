@@ -200,6 +200,9 @@ function AdminProducts() {
           Thêm sản phẩm
         </Button>
       </div>
+            <p className="text-sm text-gray-600 mb-2">
+            Tìm thấy <span className="font-semibold">{filteredProducts.length}</span> sản phẩm
+            </p>
 
       <div className="overflow-auto border rounded-lg">
         <Table >

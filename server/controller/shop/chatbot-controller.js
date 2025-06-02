@@ -120,7 +120,7 @@ const chatWithBot = async (req, res) => {
     const products = topProducts.map((p) => ({
       _id: p._id,
       name: p.productName,
-      price: p.salePrice,
+      price: p.price,
       salePrice : p.salePrice,
       images: p.image || [],
     }));
