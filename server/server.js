@@ -17,10 +17,12 @@ const commonFeatureRouter = require("./routes/common/feature-routes");
 const shopReviewRouter = require("./routes/shop/review-routes");
 const shopChatbotRouter = require("./routes/shop/chatbot-routes")
 
-mongoose.connect('mongodb+srv://ngduytttb:ngduytttb@cluster0.mtfljp9.mongodb.net/'
+require('dotenv').config();
 
-).then(()=>console.log('MongoDB connected')).catch((error) => console.log(error));
-;
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(error => console.error(error));
+
 
 const app = express()
 const PORT = process.env.PORT || 5000;
