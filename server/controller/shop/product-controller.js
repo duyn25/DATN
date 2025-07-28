@@ -17,34 +17,29 @@ const getFilteredProducts = async (req, res) => {
 
     const query = {};
 
-    // Bộ lọc theo category
     if (categoryId && categoryId !== "") {
       query.categoryId = categoryId;
     }
 
-    // Bộ lọc theo hãng
     if (brand && typeof brand === "string" && brand.trim() !== "") {
-      query.brand = { $in: brand.split(',') };
+      query.brand = { $in: brand.split(",") };
     }
 
-    // Bộ lọc theo giá
+    // Lọc theo khoảng giá
     if (minPrice || maxPrice) {
       const min = parseFloat(minPrice || 0);
       const max = parseFloat(maxPrice || Infinity);
-
       query.$or = [
-        { salePrice: { $gt: 0, $gte: min, $lte: max } }, 
+        { salePrice: { $gt: 0, $gte: min, $lte: max } },
         {
           $and: [
-            { $or: [{ salePrice: 0 }, { salePrice: null }] }, 
-            { price: { $gte: min, $lte: max } },              g
+            { $or: [{ salePrice: 0 }, { salePrice: null }] },
+            { price: { $gte: min, $lte: max } },
           ],
         },
       ];
     }
 
-
-    // Xử lý sắp xếp
     const sortMap = {
       "price-lowtohigh": { price: 1 },
       "price-hightolow": { price: -1 },
@@ -54,6 +49,9 @@ const getFilteredProducts = async (req, res) => {
     const sortQuery = sortMap[sortBy] || {};
 
     let products = await Product.find(query).sort(sortQuery);
+    if (products.length === 0) {
+      return res.status(200).json({ success: true, data: [] });
+    }
 
     // Lọc theo thông số kỹ thuật
     if (specsRaw) {
@@ -64,79 +62,81 @@ const getFilteredProducts = async (req, res) => {
         parsedSpecs = {};
       }
 
-     
-const validSpecConditions = Object.entries(parsedSpecs)
-  .filter(([specId, values]) =>
-    /^[a-fA-F0-9]{24}$/.test(specId) &&
-    Array.isArray(values) &&
-    values.length > 0
-  )
-  .flatMap(([specId, values]) =>
-    values.map((val) => {
-      const isNumericRange = /^\d+(\.\d+)?\s*-\s*\d+(\.\d+)?$/.test(val);
-      if (isNumericRange) {
-        const [min, max] = val.split("-").map(Number);
-        return {
-          $expr: {
-            $and: [
-              { $eq: ["$specId", { $toObjectId: specId }] },
-              {
-                $gte: [
+      const productIds = products.map((p) => p._id);
+      const ObjectId = require("mongoose").Types.ObjectId;
+      let matchingProductSets = [];
+
+      for (const [specId, values] of Object.entries(parsedSpecs)) {
+        if (
+          !/^[a-fA-F0-9]{24}$/.test(specId) ||
+          !Array.isArray(values) ||
+          values.length === 0
+        ) {
+          continue;
+        }
+
+        const conditions = values.map((val) => {
+          const isNumericRange = /^\d+(\.\d+)?\s*-\s*\d+(\.\d+)?$/.test(val);
+          if (isNumericRange) {
+            const [min, max] = val.split("-").map(Number);
+            return {
+              $expr: {
+                $and: [
+                  { $eq: ["$specId", new ObjectId(specId)] },
                   {
-                    $convert: {
-                      input: "$value",
-                      to: "double",
-                      onError: null,
-                      onNull: null,
-                    },
+                    $gte: [
+                      {
+                        $convert: {
+                          input: "$value",
+                          to: "double",
+                          onError: null,
+                          onNull: null,
+                        },
+                      },
+                      min,
+                    ],
                   },
-                  min,
+                  {
+                    $lte: [
+                      {
+                        $convert: {
+                          input: "$value",
+                          to: "double",
+                          onError: null,
+                          onNull: null,
+                        },
+                      },
+                      max,
+                    ],
+                  },
                 ],
               },
-              {
-                $lte: [
-                  {
-                    $convert: {
-                      input: "$value",
-                      to: "double",
-                      onError: null,
-                      onNull: null,
-                    },
-                  },
-                  max,
-                ],
-              },
-            ],
-          },
-        };
-      }
-
-      // Trường hợp value là chuỗi (select/text)
-      return {
-        specId,
-        value: val,
-      };
-    })
-  );
-
-
-
-      if (validSpecConditions.length > 0 && products.length > 0) {
-        const productIds = products.map((p) => p._id);
+            };
+          }
+          return { specId: new ObjectId(specId), value: val };
+        });
 
         const matchingSpecs = await Specification.find({
           productId: { $in: productIds },
-          $or: validSpecConditions,
-        });
+          $or: conditions,
+        }).select("productId");
 
-        const matchedProductIds = matchingSpecs.map((m) =>
-          m.productId.toString()
+        const matchedIds = matchingSpecs.map((s) =>
+          s.productId.toString()
         );
-
-        products = products.filter((p) =>
-          matchedProductIds.includes(p._id.toString())
-        );
+        matchingProductSets.push(new Set(matchedIds));
       }
+
+      const matchedProductIds = matchingProductSets.reduce((acc, set) => {
+        if (!acc) return set;
+        return new Set([...acc].filter((id) => set.has(id)));
+      }, null);
+
+      if (matchedProductIds) {
+        products = products.filter((p) =>
+          matchedProductIds.has(p._id.toString())
+        );
+      } 
     }
 
     res.status(200).json({ success: true, data: products });
