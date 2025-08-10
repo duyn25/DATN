@@ -39,15 +39,10 @@
 - MongoDB Atlas
 - Mongoose
 
-**AI Chatbot**
-- Together.ai API
-- MongoDB Search
-
 **Khác**
 - Chart.js
 - XLSX
 - PDFKit
 
 ##Giao diện demo
-
-
+![San pham](client/src/assets/sanpham)
