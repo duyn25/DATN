@@ -45,4 +45,6 @@
 - PDFKit
 
 ##Giao diện demo
-![San pham](client/src/assets/sanpham)
+![Sản phẩm](client/src/assets/sanpham.png)
+![Mua hàng](client/src/assets/muahang.png)
+![Quản lý](client/src/assets/quanly.png)
