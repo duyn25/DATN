@@ -36,8 +36,7 @@
 - Multer
 
 **Cơ sở dữ liệu**
-- MongoDB Atlas
-- Mongoose
+- MongoDB
 
 **Khác**
 - Chart.js
